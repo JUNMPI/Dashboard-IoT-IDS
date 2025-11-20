@@ -49,30 +49,28 @@ def _load_model_with_compatibility(model_path: Path) -> tf.keras.Model:
     try:
         logger.info("Attempting to load using load_weights approach...")
 
-        # Load the model architecture from JSON in metadata
-        metadata_path = model_path.parent / model_path.name.replace('.h5', '_metadata.json').replace('modelo_ae_fnn_iot_', 'model_metadata_')
-
-        # For now, we'll reconstruct the model manually based on known architecture
-        # This is the most reliable approach for cross-version compatibility
-
         from tensorflow.keras import layers, Model
 
-        # Define the Autoencoder-FNN architecture
+        # Define the Autoencoder-FNN architecture with LeakyReLU
         # Input layer
-        input_layer = layers.Input(shape=(16,), name='input_layer')
+        input_layer = layers.Input(shape=(16,), name='Tensor_de_Entrada_X')
 
         # Encoder
-        encoded = layers.Dense(8, activation='relu', name='encoder_dense_1')(input_layer)
-        encoded = layers.Dense(6, activation='relu', name='encoder_dense_2')(encoded)
+        encoded = layers.Dense(8, name='dense')(input_layer)
+        encoded = layers.LeakyReLU(alpha=0.3, name='leaky_re_lu')(encoded)
+        encoded = layers.Dense(6, name='dense_1')(encoded)
+        encoded = layers.LeakyReLU(alpha=0.3, name='leaky_re_lu_1')(encoded)
 
         # Decoder
-        decoded = layers.Dense(8, activation='relu', name='decoder_dense_1')(encoded)
-        reconstruction = layers.Dense(16, activation='linear', name='reconstruction_output')(decoded)
+        decoded = layers.Dense(8, name='dense_2')(encoded)
+        decoded = layers.LeakyReLU(alpha=0.3, name='leaky_re_lu_2')(decoded)
+        reconstruction = layers.Dense(16, activation='linear', name='Salida_Reconstruccion')(decoded)
 
         # Classifier
-        classifier = layers.Dense(16, activation='relu', name='classifier_dense_1')(encoded)
-        classifier = layers.Dropout(0.3, name='classifier_dropout')(classifier)
-        classification = layers.Dense(6, activation='softmax', name='classification_output')(classifier)
+        classifier = layers.Dense(16, name='dense_3')(encoded)
+        classifier = layers.LeakyReLU(alpha=0.3, name='leaky_re_lu_3')(classifier)
+        classifier = layers.Dropout(0.3, name='dropout')(classifier)
+        classification = layers.Dense(6, activation='softmax', name='Salida_Clasificacion')(classifier)
 
         # Create model
         model = Model(inputs=input_layer, outputs=[reconstruction, classification])
@@ -115,10 +113,23 @@ def _load_model_with_compatibility(model_path: Path) -> tf.keras.Model:
                     kwargs['dtype'] = dtype_name
             return keras.layers.Dense(*args, **kwargs)
 
+        # Custom LeakyReLU that handles negative_slope -> alpha
+        def custom_leaky_relu(*args, **kwargs):
+            # Convert negative_slope to alpha
+            if 'negative_slope' in kwargs:
+                kwargs['alpha'] = kwargs.pop('negative_slope')
+            # Remove or convert DTypePolicy
+            if 'dtype' in kwargs and isinstance(kwargs['dtype'], dict):
+                if kwargs['dtype'].get('class_name') == 'DTypePolicy':
+                    dtype_name = kwargs['dtype'].get('config', {}).get('name', 'float32')
+                    kwargs['dtype'] = dtype_name
+            return keras.layers.LeakyReLU(*args, **kwargs)
+
         custom_objects = {
             'DTypePolicy': DTypePolicy,
             'InputLayer': custom_input_layer,
             'Dense': custom_dense,
+            'LeakyReLU': custom_leaky_relu,
         }
 
         with keras.utils.custom_object_scope(custom_objects):
