@@ -21,11 +21,10 @@ from utils.report_generator import generate_analysis_report
 
 st.set_page_config(
     page_title="Análisis de Archivo",
-    page_icon="📊",
     layout="wide"
 )
 
-st.title("📊 Análisis de Archivo CSV")
+st.title("Análisis de Archivo CSV")
 st.markdown("Carga un archivo CSV con datos de tráfico de red y obtén análisis detallado")
 
 # =============================================================================
@@ -33,7 +32,7 @@ st.markdown("Carga un archivo CSV con datos de tráfico de red y obtén análisi
 # =============================================================================
 
 if not st.session_state.get('model_loaded', False):
-    st.error("⚠️ No hay modelo cargado. Por favor selecciona un modelo desde la página principal.")
+    st.error("No hay modelo cargado. Por favor selecciona un modelo desde la página principal.")
     st.stop()
 
 model = st.session_state.model
@@ -42,14 +41,14 @@ label_encoder = st.session_state.label_encoder
 class_names = st.session_state.class_names
 metadata = st.session_state.metadata
 
-st.success(f"✅ Modelo activo: **{st.session_state.selected_model.upper()}**")
+st.success(f"Modelo activo: **{st.session_state.selected_model.upper()}**")
 
 # =============================================================================
 # FILE UPLOAD
 # =============================================================================
 
 st.markdown("---")
-st.subheader("📁 Cargar Archivo")
+st.subheader("Cargar Archivo")
 
 st.info("""
 **Formato requerido del archivo CSV:**
@@ -74,11 +73,11 @@ if uploaded_file is not None:
         # Read CSV
         df = pd.read_csv(uploaded_file)
 
-        st.success(f"✅ Archivo cargado: {uploaded_file.name}")
+        st.success(f"Archivo cargado: {uploaded_file.name}")
         st.write(f"**Dimensiones:** {df.shape[0]} filas x {df.shape[1]} columnas")
 
         # Display preview
-        with st.expander("👁️ Vista previa de los datos"):
+        with st.expander("Vista previa de los datos"):
             st.dataframe(df.head(20), use_container_width=True)
 
         st.markdown("---")
@@ -101,7 +100,7 @@ if uploaded_file is not None:
             if len(numeric_cols) >= 16:
                 feature_cols = numeric_cols[:16]
             else:
-                st.error(f"❌ No se encontraron suficientes columnas numéricas. "
+                st.error(f"No se encontraron suficientes columnas numéricas. "
                         f"Se necesitan 16, se encontraron {len(numeric_cols)}")
                 st.stop()
 
@@ -111,13 +110,13 @@ if uploaded_file is not None:
         has_labels = 'label' in df.columns or 'Label' in df.columns
         if has_labels:
             label_col = 'label' if 'label' in df.columns else 'Label'
-            st.info(f"✅ Se detectó columna de etiquetas: '{label_col}'")
+            st.info(f"Se detectó columna de etiquetas: '{label_col}'")
         else:
-            st.warning("⚠️ No se detectó columna de etiquetas. Solo se mostrarán predicciones.")
+            st.warning("No se detectó columna de etiquetas. Solo se mostrarán predicciones.")
             label_col = None
 
         # Analysis settings
-        st.subheader("⚙️ Configuración de Análisis")
+        st.subheader("Configuración de Análisis")
 
         analysis_col1, analysis_col2 = st.columns(2)
 
@@ -140,7 +139,7 @@ if uploaded_file is not None:
             )
 
         # Analyze button
-        if st.button("🚀 Analizar Archivo", type="primary"):
+        if st.button("Analizar Archivo", type="primary"):
             with st.spinner(f"Analizando {max_samples} muestras..."):
 
                 # Extract features
@@ -148,7 +147,7 @@ if uploaded_file is not None:
 
                 # Check for NaN values
                 if np.isnan(X).any():
-                    st.error("❌ El archivo contiene valores faltantes (NaN). "
+                    st.error("El archivo contiene valores faltantes (NaN). "
                             "Por favor limpia los datos antes de procesarlos.")
                     st.stop()
 
@@ -184,11 +183,11 @@ if uploaded_file is not None:
                     'model_type': st.session_state.selected_model
                 }
 
-                st.success(f"✅ Análisis completado para {len(predictions)} muestras")
+                st.success(f"Análisis completado para {len(predictions)} muestras")
                 st.rerun()
 
     except Exception as e:
-        st.error(f"❌ Error procesando archivo: {str(e)}")
+        st.error(f"Error procesando archivo: {str(e)}")
         st.exception(e)
 
 # =============================================================================
@@ -200,7 +199,7 @@ if 'analysis_results' in st.session_state:
     analysis_meta = st.session_state.analysis_metadata
 
     st.markdown("---")
-    st.subheader("📈 Resultados del Análisis")
+    st.subheader("Resultados del Análisis")
 
     # Summary metrics
     metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
@@ -241,14 +240,14 @@ if 'analysis_results' in st.session_state:
 
     # Detailed results table
     st.markdown("---")
-    st.subheader("📋 Detalle de Predicciones")
+    st.subheader("Detalle de Predicciones")
 
     # Format results for display
     display_df = results_df.copy()
     display_df['confidence'] = display_df['confidence'].apply(lambda x: f"{x:.2f}%")
 
     if 'correct' in display_df.columns:
-        display_df['correct'] = display_df['correct'].apply(lambda x: '✓' if x else '✗')
+        display_df['correct'] = display_df['correct'].apply(lambda x: 'SI' if x else 'NO')
 
     # Add color coding
     st.dataframe(display_df, use_container_width=True, height=400)
@@ -256,7 +255,7 @@ if 'analysis_results' in st.session_state:
     # Confusion analysis (if labels available)
     if 'true_label' in results_df.columns:
         st.markdown("---")
-        st.subheader("🎯 Análisis de Confusión")
+        st.subheader("Análisis de Confusión")
 
         from sklearn.metrics import confusion_matrix, classification_report
         import seaborn as sns
@@ -293,7 +292,7 @@ if 'analysis_results' in st.session_state:
 
     # Export options
     st.markdown("---")
-    st.subheader("📥 Exportar Resultados")
+    st.subheader("Exportar Resultados")
 
     export_col1, export_col2, export_col3 = st.columns(3)
 
@@ -301,7 +300,7 @@ if 'analysis_results' in st.session_state:
         # CSV export
         csv = results_df.to_csv(index=False)
         st.download_button(
-            label="📄 Descargar Resultados (CSV)",
+            label="Descargar Resultados (CSV)",
             data=csv,
             file_name=f"analisis_{analysis_meta['filename'].replace('.csv', '')}_resultados.csv",
             mime="text/csv"
@@ -312,7 +311,7 @@ if 'analysis_results' in st.session_state:
         full_results = results_df.copy()
         full_csv = full_results.to_csv(index=False)
         st.download_button(
-            label="📊 Descargar Datos Completos",
+            label="Descargar Datos Completos",
             data=full_csv,
             file_name=f"analisis_{analysis_meta['filename'].replace('.csv', '')}_completo.csv",
             mime="text/csv"
@@ -320,7 +319,7 @@ if 'analysis_results' in st.session_state:
 
     with export_col3:
         # PDF report
-        if st.button("📑 Generar Reporte PDF"):
+        if st.button("Generar Reporte PDF"):
             with st.spinner("Generando reporte PDF..."):
                 try:
                     pdf_bytes = generate_analysis_report(
@@ -331,18 +330,18 @@ if 'analysis_results' in st.session_state:
                     )
 
                     st.download_button(
-                        label="⬇️ Descargar Reporte PDF",
+                        label="Descargar Reporte PDF",
                         data=pdf_bytes,
                         file_name=f"reporte_{analysis_meta['filename'].replace('.csv', '')}.pdf",
                         mime="application/pdf"
                     )
-                    st.success("✅ Reporte PDF generado")
+                    st.success("Reporte PDF generado")
                 except Exception as e:
                     st.error(f"Error generando PDF: {str(e)}")
                     st.exception(e)
 
 else:
-    st.info("👆 Carga un archivo CSV para comenzar el análisis")
+    st.info("Carga un archivo CSV para comenzar el análisis")
 
 # Footer
 st.markdown("---")

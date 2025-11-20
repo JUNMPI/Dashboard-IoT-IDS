@@ -17,11 +17,10 @@ from utils.report_generator import generate_comparison_report, save_report_to_fi
 
 st.set_page_config(
     page_title="Comparación de Modelos",
-    page_icon="🔬",
     layout="wide"
 )
 
-st.title("🔬 Comparación de Modelos")
+st.title("Comparación de Modelos")
 st.markdown("Analiza y compara predicciones de ambos modelos en las mismas muestras")
 
 # =============================================================================
@@ -42,13 +41,13 @@ def load_both_models():
 synthetic_artifacts, real_artifacts, models_loaded = load_both_models()
 
 if not models_loaded:
-    st.error("⚠️ No se pudieron cargar los modelos. Verifica que todos los archivos estén presentes.")
+    st.error("No se pudieron cargar los modelos. Verifica que todos los archivos estén presentes.")
     st.stop()
 
 synthetic_model, synthetic_scaler, synthetic_encoder, synthetic_classes, synthetic_meta = synthetic_artifacts
 real_model, real_scaler, real_encoder, real_classes, real_meta = real_artifacts
 
-st.success("✅ Ambos modelos cargados correctamente")
+st.success("Ambos modelos cargados correctamente")
 
 # =============================================================================
 # COMPARISON INTERFACE
@@ -73,9 +72,9 @@ with col2:
         "Fuente de muestras:",
         options=['random', 'specific_threat', 'upload'],
         format_func=lambda x: {
-            'random': '🎲 Aleatorias',
-            'specific_threat': '🎯 Tipo específico',
-            'upload': '📁 Cargar desde archivo'
+            'random': 'Aleatorias',
+            'specific_threat': 'Tipo específico',
+            'upload': 'Cargar desde archivo'
         }[x]
     )
 
@@ -89,7 +88,7 @@ with col3:
         threat_filter = None
 
 # Generate comparison button
-if st.button("🚀 Comparar Modelos", type="primary"):
+if st.button("Comparar Modelos", type="primary"):
     with st.spinner("Generando muestras y comparando predicciones..."):
 
         # Generate samples
@@ -137,7 +136,7 @@ if st.button("🚀 Comparar Modelos", type="primary"):
             'real_confs': real_confidences
         }
 
-        st.success(f"✅ Comparación completada para {num_samples} muestras")
+        st.success(f"Comparación completada para {num_samples} muestras")
 
 # =============================================================================
 # DISPLAY RESULTS
@@ -147,7 +146,7 @@ if 'comparison_results' in st.session_state:
     results = st.session_state.comparison_results
 
     st.markdown("---")
-    st.subheader("📊 Resultados de la Comparación")
+    st.subheader("Resultados de la Comparación")
 
     # Calculate concordance rate
     matches = sum(
@@ -175,7 +174,7 @@ if 'comparison_results' in st.session_state:
 
     # Comparison table
     st.markdown("---")
-    st.subheader("📋 Tabla Comparativa")
+    st.subheader("Tabla Comparativa")
 
     comparison_df = pd.DataFrame({
         'Muestra': range(1, len(results['samples']) + 1),
@@ -184,13 +183,13 @@ if 'comparison_results' in st.session_state:
         'Conf. Sintético': [f"{c:.1f}%" for c in results['synthetic_confs']],
         'Pred. Real': results['real_preds'],
         'Conf. Real': [f"{c:.1f}%" for c in results['real_confs']],
-        'Coinciden': ['✓' if p_s == p_r else '✗'
+        'Coinciden': ['SI' if p_s == p_r else 'NO'
                      for p_s, p_r in zip(results['synthetic_preds'], results['real_preds'])]
     })
 
     # Color rows based on match
     def highlight_match(row):
-        if row['Coinciden'] == '✓':
+        if row['Coinciden'] == 'SI':
             return ['background-color: #d4edda'] * len(row)
         else:
             return ['background-color: #f8d7da'] * len(row)
@@ -200,7 +199,7 @@ if 'comparison_results' in st.session_state:
 
     # Visualizations
     st.markdown("---")
-    st.subheader("📈 Visualizaciones")
+    st.subheader("Visualizaciones")
 
     viz_col1, viz_col2 = st.columns(2)
 
@@ -241,11 +240,11 @@ if 'comparison_results' in st.session_state:
             disagreements_df = pd.DataFrame(disagreements)
             st.dataframe(disagreements_df, use_container_width=True)
         else:
-            st.success("¡Todos los modelos coinciden en sus predicciones!")
+            st.success("Todos los modelos coinciden en sus predicciones")
 
     # Export options
     st.markdown("---")
-    st.subheader("📥 Exportar Resultados")
+    st.subheader("Exportar Resultados")
 
     export_col1, export_col2 = st.columns(2)
 
@@ -253,7 +252,7 @@ if 'comparison_results' in st.session_state:
         # CSV export
         csv = comparison_df.to_csv(index=False)
         st.download_button(
-            label="📄 Descargar CSV",
+            label="Descargar CSV",
             data=csv,
             file_name="comparacion_modelos.csv",
             mime="text/csv"
@@ -261,7 +260,7 @@ if 'comparison_results' in st.session_state:
 
     with export_col2:
         # PDF export
-        if st.button("📑 Generar Reporte PDF"):
+        if st.button("Generar Reporte PDF"):
             with st.spinner("Generando reporte PDF..."):
                 try:
                     # Create results DataFrames for PDF
@@ -283,17 +282,17 @@ if 'comparison_results' in st.session_state:
                     )
 
                     st.download_button(
-                        label="⬇️ Descargar PDF",
+                        label="Descargar PDF",
                         data=pdf_bytes,
                         file_name="comparacion_modelos.pdf",
                         mime="application/pdf"
                     )
-                    st.success("✅ Reporte PDF generado")
+                    st.success("Reporte PDF generado")
                 except Exception as e:
                     st.error(f"Error generando PDF: {str(e)}")
 
 else:
-    st.info("👆 Configura los parámetros arriba y presiona 'Comparar Modelos' para comenzar")
+    st.info("Configura los parámetros arriba y presiona 'Comparar Modelos' para comenzar")
 
 # Footer
 st.markdown("---")

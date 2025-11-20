@@ -17,7 +17,6 @@ from utils.model_loader import load_model, get_model_info, check_model_files
 
 st.set_page_config(
     page_title="IoT-IDS Dashboard",
-    page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
@@ -60,18 +59,18 @@ init_session_state()
 # =============================================================================
 
 with st.sidebar:
-    st.title("🛡️ IoT-IDS")
+    st.title("IoT-IDS")
     st.markdown("---")
 
     # Model selection
-    st.subheader("⚙️ Configuración")
+    st.subheader("Configuración")
 
     model_type = st.radio(
         "Seleccionar Modelo:",
         options=['synthetic', 'real'],
         format_func=lambda x: {
-            'synthetic': '🔬 Modelo Sintético (97.24%)',
-            'real': '🌐 Modelo Real (84.48%)'
+            'synthetic': 'Modelo Sintético (97.24%)',
+            'real': 'Modelo Real (84.48%)'
         }[x],
         key='model_selector'
     )
@@ -87,7 +86,7 @@ with st.sidebar:
                 missing_files = [k for k, v in file_status.items() if not v]
 
                 if missing_files:
-                    st.error(f"⚠️ Archivos faltantes: {', '.join(missing_files)}")
+                    st.error(f"Archivos faltantes: {', '.join(missing_files)}")
                     st.session_state.model_loaded = False
                 else:
                     # Load model
@@ -101,15 +100,15 @@ with st.sidebar:
                     st.session_state.metadata = metadata
                     st.session_state.model_loaded = True
 
-                    st.success(f"✅ Modelo {model_type} cargado exitosamente")
+                    st.success(f"Modelo {model_type} cargado exitosamente")
             except Exception as e:
-                st.error(f"❌ Error al cargar modelo: {str(e)}")
+                st.error(f"Error al cargar modelo: {str(e)}")
                 st.session_state.model_loaded = False
 
     # Model info (if loaded)
     if st.session_state.model_loaded:
         st.markdown("---")
-        st.subheader("📊 Info del Modelo")
+        st.subheader("Info del Modelo")
 
         metadata = st.session_state.metadata
 
@@ -148,14 +147,14 @@ with st.sidebar:
 # MAIN CONTENT - HOMEPAGE
 # =============================================================================
 
-st.title("🛡️ Sistema de Detección de Intrusiones para IoT")
+st.title("Sistema de Detección de Intrusiones para IoT")
 st.markdown("### Dashboard de Análisis y Detección de Amenazas")
 
 # Welcome message
 if st.session_state.model_loaded:
-    st.success(f"✅ Sistema listo | Modelo activo: **{st.session_state.selected_model.upper()}**")
+    st.success(f"Sistema listo | Modelo activo: **{st.session_state.selected_model.upper()}**")
 else:
-    st.warning("⚠️ Selecciona un modelo en la barra lateral para comenzar")
+    st.warning("Selecciona un modelo en la barra lateral para comenzar")
 
 st.markdown("---")
 
@@ -164,7 +163,7 @@ col1, col2, col3 = st.columns(3)
 
 with col1:
     st.markdown("""
-    #### 🎯 Objetivo
+    #### Objetivo
 
     Demostración de un sistema de detección de intrusiones para redes IoT
     utilizando aprendizaje profundo multi-tarea (Autoencoder-FNN).
@@ -172,7 +171,7 @@ with col1:
 
 with col2:
     st.markdown("""
-    #### 🧠 Tecnología
+    #### Tecnología
 
     - **Autoencoder:** Reducción dimensional y reconstrucción
     - **FNN:** Clasificación de amenazas
@@ -181,7 +180,7 @@ with col2:
 
 with col3:
     st.markdown("""
-    #### 🔍 Amenazas Detectadas
+    #### Amenazas Detectadas
 
     1. Normal (tráfico benigno)
     2. Brute Force
@@ -194,18 +193,18 @@ with col3:
 st.markdown("---")
 
 # Features overview
-st.subheader("📱 Funcionalidades del Dashboard")
+st.subheader("Funcionalidades del Dashboard")
 
 feature_col1, feature_col2 = st.columns(2)
 
 with feature_col1:
     st.markdown("""
-    **🔬 Comparación de Modelos**
+    **Comparación de Modelos**
     - Análisis lado a lado de ambos modelos
     - Tasa de concordancia entre predicciones
     - Exportación de resultados comparativos
 
-    **⚡ Simulación en Tiempo Real**
+    **Simulación en Tiempo Real**
     - Generación de tráfico sintético
     - Detección instantánea de amenazas
     - Visualización temporal de alertas
@@ -213,12 +212,12 @@ with feature_col1:
 
 with feature_col2:
     st.markdown("""
-    **📊 Análisis de Archivos**
+    **Análisis de Archivos**
     - Carga de datasets CSV
     - Procesamiento por lotes
     - Métricas detalladas y reportes PDF
 
-    **📈 Métricas y Rendimiento**
+    **Métricas y Rendimiento**
     - Matriz de confusión
     - Distribución de amenazas
     - Métricas de clasificación
@@ -228,7 +227,7 @@ st.markdown("---")
 
 # Model architecture info (if model is loaded)
 if st.session_state.model_loaded:
-    st.subheader("🏗️ Arquitectura del Modelo")
+    st.subheader("Arquitectura del Modelo")
 
     arch_col1, arch_col2 = st.columns([2, 1])
 
@@ -269,19 +268,19 @@ if st.session_state.model_loaded:
 
 # Instructions
 st.markdown("---")
-st.subheader("🚀 Cómo Usar el Dashboard")
+st.subheader("Cómo Usar el Dashboard")
 
 st.markdown("""
 1. **Selecciona un modelo** en la barra lateral (Sintético o Real)
 2. **Navega a las páginas** usando el menú lateral:
-   - 🔬 **Comparación de Modelos:** Compara ambos modelos en las mismas muestras
-   - ⚡ **Tiempo Real:** Simula tráfico de red en tiempo real
-   - 📊 **Análisis de Archivo:** Carga y analiza datasets CSV
-   - 📈 **Métricas:** Visualiza el rendimiento del modelo
+   - **Comparación de Modelos:** Compara ambos modelos en las mismas muestras
+   - **Tiempo Real:** Simula tráfico de red en tiempo real
+   - **Análisis de Archivo:** Carga y analiza datasets CSV
+   - **Métricas:** Visualiza el rendimiento del modelo
 3. **Explora las visualizaciones** interactivas
 4. **Exporta resultados** en formato PDF o CSV
 
-💡 **Tip:** El modelo sintético tiene mayor precisión pero el modelo real es más robusto
+**Tip:** El modelo sintético tiene mayor precisión pero el modelo real es más robusto
 ante variaciones de datos del mundo real.
 """)
 

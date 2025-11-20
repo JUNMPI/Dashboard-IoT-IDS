@@ -25,11 +25,10 @@ from utils.visualizations import (
 
 st.set_page_config(
     page_title="Simulación en Tiempo Real",
-    page_icon="⚡",
     layout="wide"
 )
 
-st.title("⚡ Detección de Amenazas en Tiempo Real")
+st.title("Detección de Amenazas en Tiempo Real")
 st.markdown("Simula tráfico de red IoT y observa la detección de amenazas en vivo")
 
 # =============================================================================
@@ -37,7 +36,7 @@ st.markdown("Simula tráfico de red IoT y observa la detección de amenazas en v
 # =============================================================================
 
 if not st.session_state.get('model_loaded', False):
-    st.error("⚠️ No hay modelo cargado. Por favor selecciona un modelo desde la página principal.")
+    st.error("No hay modelo cargado. Por favor selecciona un modelo desde la página principal.")
     st.stop()
 
 model = st.session_state.model
@@ -46,14 +45,14 @@ label_encoder = st.session_state.label_encoder
 class_names = st.session_state.class_names
 metadata = st.session_state.metadata
 
-st.success(f"✅ Modelo activo: **{st.session_state.selected_model.upper()}**")
+st.success(f"Modelo activo: **{st.session_state.selected_model.upper()}**")
 
 # =============================================================================
 # SIMULATION SETTINGS
 # =============================================================================
 
 st.markdown("---")
-st.subheader("⚙️ Configuración de Simulación")
+st.subheader("Configuración de Simulación")
 
 col1, col2, col3 = st.columns(3)
 
@@ -62,10 +61,10 @@ with col1:
         "Escenario de Tráfico:",
         options=['normal', 'under_attack', 'scanning', 'mixed'],
         format_func=lambda x: {
-            'normal': '🟢 Normal (5% amenazas)',
-            'under_attack': '🔴 Bajo Ataque (80% DDoS)',
-            'scanning': '🟠 Escaneo (60% scan)',
-            'mixed': '🟡 Mixto (30% amenazas)'
+            'normal': 'Normal (5% amenazas)',
+            'under_attack': 'Bajo Ataque (80% DDoS)',
+            'scanning': 'Escaneo (60% scan)',
+            'mixed': 'Mixto (30% amenazas)'
         }[x]
     )
 
@@ -109,7 +108,7 @@ if 'simulation_data' not in st.session_state:
 button_col1, button_col2, button_col3 = st.columns([1, 1, 3])
 
 with button_col1:
-    if st.button("▶️ Iniciar Simulación", type="primary", disabled=st.session_state.simulation_running):
+    if st.button("Iniciar Simulación", type="primary", disabled=st.session_state.simulation_running):
         st.session_state.simulation_running = True
         # Clear previous data
         st.session_state.simulation_data = {
@@ -121,12 +120,12 @@ with button_col1:
         st.rerun()
 
 with button_col2:
-    if st.button("⏹️ Detener", disabled=not st.session_state.simulation_running):
+    if st.button("Detener", disabled=not st.session_state.simulation_running):
         st.session_state.simulation_running = False
         st.rerun()
 
 with button_col3:
-    if st.button("🔄 Reiniciar Datos"):
+    if st.button("Reiniciar Datos"):
         st.session_state.simulation_data = {
             'timestamps': [],
             'predictions': [],
@@ -174,17 +173,17 @@ if st.session_state.simulation_running:
         severity = get_threat_severity(prediction)
 
         # Status update
-        severity_colors = {
-            'normal': '🟢',
-            'low': '🔵',
-            'medium': '🟡',
-            'high': '🟠',
-            'critical': '🔴'
+        severity_labels = {
+            'normal': '[NORMAL]',
+            'low': '[LOW]',
+            'medium': '[MEDIUM]',
+            'high': '[HIGH]',
+            'critical': '[CRITICAL]'
         }
-        status_icon = severity_colors.get(severity, '⚪')
+        status_label = severity_labels.get(severity, '[UNKNOWN]')
 
         status_placeholder.info(
-            f"{status_icon} **t={timestamp:.1f}s** | Detectado: **{prediction}** | "
+            f"{status_label} **t={timestamp:.1f}s** | Detectado: **{prediction}** | "
             f"Confianza: {confidence:.1f}% | Real: {true_label}"
         )
 
@@ -227,7 +226,7 @@ if st.session_state.simulation_running:
     # Simulation complete
     st.session_state.simulation_running = False
     progress_bar.empty()
-    status_placeholder.success(f"✅ Simulación completada | {duration} segundos procesados")
+    status_placeholder.success(f"Simulación completada | {duration} segundos procesados")
 
 # =============================================================================
 # RESULTS DISPLAY (when not running)
@@ -237,7 +236,7 @@ if not st.session_state.simulation_running and len(st.session_state.simulation_d
     data = st.session_state.simulation_data
 
     st.markdown("---")
-    st.subheader("📊 Resultados de la Simulación")
+    st.subheader("Resultados de la Simulación")
 
     # Summary metrics
     metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
@@ -283,14 +282,14 @@ if not st.session_state.simulation_running and len(st.session_state.simulation_d
 
     # Detailed table
     st.markdown("---")
-    st.subheader("📋 Detalle de Detecciones")
+    st.subheader("Detalle de Detecciones")
 
     details_df = pd.DataFrame({
         'Tiempo (s)': data['timestamps'],
         'Predicción': data['predictions'],
         'Confianza (%)': [f"{c:.1f}" for c in data['confidences']],
         'Etiqueta Real': data['true_labels'],
-        'Correcto': ['✓' if p == t else '✗'
+        'Correcto': ['SI' if p == t else 'NO'
                     for p, t in zip(data['predictions'], data['true_labels'])]
     })
 
@@ -305,7 +304,7 @@ if not st.session_state.simulation_running and len(st.session_state.simulation_d
     st.markdown("---")
     csv = details_df.to_csv(index=False)
     st.download_button(
-        label="📥 Descargar Resultados (CSV)",
+        label="Descargar Resultados (CSV)",
         data=csv,
         file_name=f"simulacion_{scenario}_{duration}s.csv",
         mime="text/csv"
@@ -313,7 +312,7 @@ if not st.session_state.simulation_running and len(st.session_state.simulation_d
 
 else:
     if not st.session_state.simulation_running:
-        st.info("👆 Configura el escenario y presiona 'Iniciar Simulación' para comenzar")
+        st.info("Configura el escenario y presiona 'Iniciar Simulación' para comenzar")
 
 # Footer
 st.markdown("---")

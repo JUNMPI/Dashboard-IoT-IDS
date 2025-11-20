@@ -19,11 +19,10 @@ from utils.visualizations import (
 
 st.set_page_config(
     page_title="Métricas del Modelo",
-    page_icon="📈",
     layout="wide"
 )
 
-st.title("📈 Métricas y Rendimiento del Modelo")
+st.title("Métricas y Rendimiento del Modelo")
 st.markdown("Visualiza el desempeño y características del modelo entrenado")
 
 # =============================================================================
@@ -31,7 +30,7 @@ st.markdown("Visualiza el desempeño y características del modelo entrenado")
 # =============================================================================
 
 if not st.session_state.get('model_loaded', False):
-    st.error("⚠️ No hay modelo cargado. Por favor selecciona un modelo desde la página principal.")
+    st.error("No hay modelo cargado. Por favor selecciona un modelo desde la página principal.")
     st.stop()
 
 model = st.session_state.model
@@ -39,14 +38,14 @@ metadata = st.session_state.metadata
 class_names = st.session_state.class_names
 model_type = st.session_state.selected_model
 
-st.success(f"✅ Modelo activo: **{model_type.upper()}**")
+st.success(f"Modelo activo: **{model_type.upper()}**")
 
 # =============================================================================
 # MODEL METADATA
 # =============================================================================
 
 st.markdown("---")
-st.subheader("ℹ️ Información General del Modelo")
+st.subheader("Información General del Modelo")
 
 info_col1, info_col2, info_col3 = st.columns(3)
 
@@ -77,7 +76,7 @@ with info_col3:
 # =============================================================================
 
 st.markdown("---")
-st.subheader("📊 Estadísticas del Dataset")
+st.subheader("Estadísticas del Dataset")
 
 data_col1, data_col2, data_col3 = st.columns(3)
 
@@ -104,7 +103,7 @@ with data_col3:
 # =============================================================================
 
 st.markdown("---")
-st.subheader("🎯 Métricas de Rendimiento")
+st.subheader("Métricas de Rendimiento")
 
 # Test set metrics
 perf_col1, perf_col2 = st.columns(2)
@@ -147,7 +146,7 @@ with perf_col2:
 # =============================================================================
 
 st.markdown("---")
-st.subheader("🏷️ Clases Detectadas")
+st.subheader("Clases Detectadas")
 
 st.info(f"**Total de clases:** {len(class_names)}")
 
@@ -157,26 +156,26 @@ class_grid_cols = st.columns(3)
 for idx, class_name in enumerate(class_names):
     col_idx = idx % 3
     with class_grid_cols[col_idx]:
-        # Color coding for threat severity
+        # Display class name with severity level
         if class_name == 'normal':
-            emoji = "🟢"
+            severity = "[NORMAL]"
         elif class_name in ['scan']:
-            emoji = "🔵"
+            severity = "[LOW]"
         elif class_name in ['spoofing']:
-            emoji = "🟡"
+            severity = "[MEDIUM]"
         elif class_name in ['brute_force', 'mitm']:
-            emoji = "🟠"
+            severity = "[HIGH]"
         else:  # ddos
-            emoji = "🔴"
+            severity = "[CRITICAL]"
 
-        st.markdown(f"{emoji} **{class_name}**")
+        st.markdown(f"{severity} **{class_name}**")
 
 # =============================================================================
 # TRAINING HISTORY (if available)
 # =============================================================================
 
 st.markdown("---")
-st.subheader("📉 Historial de Entrenamiento")
+st.subheader("Historial de Entrenamiento")
 
 # Try to load training history
 history_file = None
@@ -271,7 +270,7 @@ if history_path.exists():
         st.plotly_chart(fig, use_container_width=True)
 
         # Show training summary
-        with st.expander("📊 Ver Datos de Entrenamiento"):
+        with st.expander("Ver Datos de Entrenamiento"):
             st.dataframe(history_df, use_container_width=True)
 
     except Exception as e:
@@ -284,7 +283,7 @@ else:
 # =============================================================================
 
 st.markdown("---")
-st.subheader("🎯 Matriz de Confusión")
+st.subheader("Matriz de Confusión")
 
 # Try to load confusion matrix image
 cm_file = None
@@ -304,7 +303,7 @@ else:
 # =============================================================================
 
 st.markdown("---")
-st.subheader("📊 Métricas por Clase")
+st.subheader("Métricas por Clase")
 
 # Try to load per-class metrics chart
 metrics_file = None
@@ -324,7 +323,7 @@ else:
 # =============================================================================
 
 st.markdown("---")
-st.subheader("⚖️ Comparación entre Modelos")
+st.subheader("Comparación entre Modelos")
 
 # Load both metadata
 synthetic_meta_path = Path("models/synthetic/model_metadata_synthetic.json")
@@ -384,7 +383,7 @@ else:
 # =============================================================================
 
 st.markdown("---")
-st.subheader("🏗️ Resumen de Arquitectura")
+st.subheader("Resumen de Arquitectura")
 
 with st.expander("Ver detalles de la arquitectura"):
     arch_col1, arch_col2 = st.columns(2)
