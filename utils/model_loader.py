@@ -51,7 +51,7 @@ def _load_model_with_compatibility(model_path: Path) -> tf.keras.Model:
                 if 'batch_shape' in kwargs:
                     batch_shape = kwargs.pop('batch_shape')
                     if batch_shape and len(batch_shape) > 1:
-                        kwargs['shape'] = batch_shape[1:]  # Remove batch dimension
+                        kwargs['input_shape'] = batch_shape[1:]  # Remove batch dimension
                 return keras.layers.InputLayer(*args, **kwargs)
 
             custom_objects = {
