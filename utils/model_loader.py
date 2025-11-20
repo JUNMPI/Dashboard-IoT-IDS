@@ -45,7 +45,7 @@ REAL_METADATA_FILE = "model_metadata_REAL.json"
 
 # Model configuration
 N_FEATURES = 16  # PCA components (PC1-PC16)
-N_CLASSES = 8    # Benign + 7 attack types
+N_CLASSES = 6    # Normal + 5 attack types (brute_force, ddos, mitm, scan, spoofing)
 
 # =============================================================================
 # HELPER FUNCTIONS

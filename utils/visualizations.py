@@ -20,16 +20,14 @@ from sklearn.metrics import confusion_matrix
 # CONFIGURATION
 # =============================================================================
 
-# Color schemes
+# Color schemes (matching actual model classes)
 THREAT_COLORS = {
-    "Benign": "#2ecc71",      # Green
-    "DDoS": "#e74c3c",        # Red
-    "DoS": "#e67e22",         # Orange
-    "Brute_Force": "#c0392b", # Dark red
-    "Spoofing": "#f39c12",    # Yellow-orange
-    "MITM": "#d35400",        # Dark orange
-    "Scan": "#3498db",        # Blue
-    "Recon": "#9b59b6",       # Purple
+    "normal": "#2ecc71",       # Green
+    "brute_force": "#c0392b",  # Dark red
+    "ddos": "#e74c3c",         # Red
+    "mitm": "#d35400",         # Dark orange
+    "scan": "#3498db",         # Blue
+    "spoofing": "#f39c12",     # Yellow-orange
 }
 
 SEVERITY_COLORS = {

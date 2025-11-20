@@ -18,27 +18,23 @@ import numpy as np
 # PCA components (PC1-PC16)
 N_FEATURES = 16
 
-# Threat types
+# Threat types (matching actual model classes)
 class ThreatType(str, Enum):
     """Enumeration of IoT threat types."""
-    BENIGN = "Benign"
-    DDOS = "DDoS"
-    DOS = "DoS"
-    BRUTE_FORCE = "Brute_Force"
-    SPOOFING = "Spoofing"
-    MITM = "MITM"
-    SCAN = "Scan"
-    RECON = "Recon"
+    NORMAL = "normal"
+    BRUTE_FORCE = "brute_force"
+    DDOS = "ddos"
+    MITM = "mitm"
+    SCAN = "scan"
+    SPOOFING = "spoofing"
 
 # Severity levels for visual alerts
 THREAT_SEVERITY = {
-    ThreatType.BENIGN: "normal",
+    ThreatType.NORMAL: "normal",
     ThreatType.SCAN: "low",
-    ThreatType.RECON: "low",
     ThreatType.SPOOFING: "medium",
     ThreatType.BRUTE_FORCE: "high",
     ThreatType.MITM: "high",
-    ThreatType.DOS: "critical",
     ThreatType.DDOS: "critical",
 }
 
@@ -48,7 +44,7 @@ THREAT_SEVERITY = {
 
 # Statistical patterns for each attack type (based on PCA characteristics)
 ATTACK_PATTERNS = {
-    ThreatType.BENIGN: {
+    ThreatType.NORMAL: {
         "mean": np.array([0.0] * N_FEATURES),
         "std": np.array([1.0] * N_FEATURES),
         "skew": None
@@ -57,11 +53,6 @@ ATTACK_PATTERNS = {
         "mean": np.array([3.0, 2.5, 2.0, 1.5, 1.0] + [0.0] * 11),
         "std": np.array([0.8, 0.7, 0.6, 0.5, 0.4] + [1.0] * 11),
         "skew": [0, 1, 2]  # Indices with positive skew
-    },
-    ThreatType.DOS: {
-        "mean": np.array([2.5, 2.0, 1.5, 1.0, 0.5] + [0.0] * 11),
-        "std": np.array([0.7, 0.6, 0.5, 0.4, 0.3] + [1.0] * 11),
-        "skew": [0, 1]
     },
     ThreatType.BRUTE_FORCE: {
         "mean": np.array([0.0, 0.0, 0.0, 0.0, 4.0, 3.0, 2.5] + [0.0] * 9),
@@ -81,11 +72,6 @@ ATTACK_PATTERNS = {
     ThreatType.SCAN: {
         "mean": np.array([1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 1.5] + [0.0] * 7),
         "std": np.array([0.7, 0.6, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 0.4] + [1.0] * 7),
-        "skew": [7, 8]
-    },
-    ThreatType.RECON: {
-        "mean": np.array([0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.0, 0.5] + [0.0] * 6),
-        "std": np.array([0.8, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.6, 0.5, 0.4] + [1.0] * 6),
         "skew": [7, 8]
     },
 }
@@ -199,15 +185,15 @@ def generate_mixed_traffic(
     for i in range(total_samples):
         timestamp = i / samples_per_second
 
-        # Decide if this sample is threat or benign
+        # Decide if this sample is threat or normal
         if i < num_threats:
             # Generate random threat
-            threat_types = [t for t in ThreatType if t != ThreatType.BENIGN]
+            threat_types = [t for t in ThreatType if t != ThreatType.NORMAL]
             threat_type = random.choice(threat_types)
             sample, label = generate_traffic_sample(threat_type)
         else:
-            # Generate benign traffic
-            sample, label = generate_traffic_sample(ThreatType.BENIGN)
+            # Generate normal traffic
+            sample, label = generate_traffic_sample(ThreatType.NORMAL)
 
         timeline.append((timestamp, sample, label))
 
@@ -237,33 +223,31 @@ def generate_scenario_traffic(
         >>> traffic = generate_scenario_traffic('under_attack', duration=30)
     """
     if scenario == "normal":
-        # Mostly benign with very few threats
+        # Mostly normal with very few threats
         return generate_mixed_traffic(duration, threat_ratio=0.05)
 
     elif scenario == "under_attack":
-        # Heavy DDoS/DoS attack
+        # Heavy DDoS attack
         timeline = []
         for i in range(duration):
             timestamp = float(i)
             # 80% attack traffic
             if random.random() < 0.8:
-                attack_type = random.choice([ThreatType.DDOS, ThreatType.DOS])
-                sample, label = generate_traffic_sample(attack_type)
+                sample, label = generate_traffic_sample(ThreatType.DDOS)
             else:
-                sample, label = generate_traffic_sample(ThreatType.BENIGN)
+                sample, label = generate_traffic_sample(ThreatType.NORMAL)
             timeline.append((timestamp, sample, label))
         return timeline
 
     elif scenario == "scanning":
-        # Port scanning and reconnaissance
+        # Port scanning activity
         timeline = []
         for i in range(duration):
             timestamp = float(i)
             if random.random() < 0.6:
-                attack_type = random.choice([ThreatType.SCAN, ThreatType.RECON])
-                sample, label = generate_traffic_sample(attack_type)
+                sample, label = generate_traffic_sample(ThreatType.SCAN)
             else:
-                sample, label = generate_traffic_sample(ThreatType.BENIGN)
+                sample, label = generate_traffic_sample(ThreatType.NORMAL)
             timeline.append((timestamp, sample, label))
         return timeline
 
@@ -295,8 +279,8 @@ def get_all_threat_types() -> List[str]:
     return [t.value for t in ThreatType]
 
 def get_attack_types_only() -> List[str]:
-    """Get list of attack types (excluding Benign)."""
-    return [t.value for t in ThreatType if t != ThreatType.BENIGN]
+    """Get list of attack types (excluding normal)."""
+    return [t.value for t in ThreatType if t != ThreatType.NORMAL]
 
 def calculate_risk_score(predictions: List[str]) -> float:
     """
