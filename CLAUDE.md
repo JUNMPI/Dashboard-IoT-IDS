@@ -10,7 +10,7 @@ This is an IoT Intrusion Detection System (IoT-IDS) demo application built for a
 - **Synthetic Model**: 97% accuracy on balanced synthetic PCA data
 - **Real Model**: 84.48% accuracy on CICIoT2023 real-world data
 
-**Detected threat types:** Benign, DDoS, DoS, Brute Force, Spoofing, MITM, Scan, Recon
+**Detected threat types (6 classes):** normal, brute_force, ddos, mitm, scan, spoofing
 
 ## Development Commands
 
@@ -57,12 +57,12 @@ pytest tests/test_model_loader.py
 
 The core model combines two architectures:
 
-1. **Autoencoder (AE)**: Compresses 16 PCA components → 4 latent dimensions → 16 reconstructed
-   - Encoder: 16 → 8 (ReLU) → 4 (ReLU)
-   - Decoder: 4 → 8 (ReLU) → 16 (Linear)
+1. **Autoencoder (AE)**: Compresses 16 PCA components → 6 latent dimensions → 16 reconstructed
+   - Encoder: 16 → 8 (ReLU) → 6 (ReLU)
+   - Decoder: 6 → 8 (ReLU) → 16 (Linear)
 
 2. **Feedforward Classifier (FNN)**: Classifies from latent space
-   - From latent: 4 → 16 (ReLU, Dropout 0.3) → 8 (Softmax)
+   - From latent: 6 → 16 (ReLU, Dropout 0.3) → 6 (Softmax)
 
 **Combined Loss:** `Total Loss = 0.3 × MSE_reconstruction + 0.7 × CrossEntropy_classification`
 
@@ -115,8 +115,18 @@ Dashboard IoT-IDS/
 │   ├── visualizations.py     # Plotly/matplotlib visualizations
 │   └── report_generator.py   # PDF report generation (reportlab)
 ├── models/                   # Trained models and preprocessing artifacts
-│   ├── modelo_ae_fnn_iot_synthetic.h5, scaler_synthetic.pkl, etc.
-│   └── modelo_ae_fnn_iot_real.h5, scaler_real.pkl, etc.
+│   ├── synthetic/            # Synthetic model artifacts (97.24% accuracy)
+│   │   ├── modelo_ae_fnn_iot_synthetic.h5
+│   │   ├── scaler_synthetic.pkl
+│   │   ├── label_encoder_synthetic.pkl
+│   │   ├── class_names_synthetic.npy
+│   │   └── model_metadata_synthetic.json
+│   └── real/                 # Real model artifacts (84.48% accuracy)
+│       ├── modelo_ae_fnn_iot_REAL.h5
+│       ├── scaler_REAL.pkl
+│       ├── label_encoder_REAL.pkl
+│       ├── class_names_REAL.npy
+│       └── model_metadata_REAL.json
 ├── data/                     # Example datasets
 │   ├── dataset_pca_capa3_iot_ultra_fixed_100k_dataset.csv  # Synthetic
 │   └── CICIoT2023_samples.csv                               # Real
@@ -148,7 +158,7 @@ def load_synthetic_model():
 
 The AE-FNN model returns **two outputs**:
 1. `predictions[0]`: Reconstruction output (16 dimensions) - for autoencoder task
-2. `predictions[1]`: Classification output (8 dimensions) - for threat classification
+2. `predictions[1]`: Classification output (6 dimensions) - for threat classification
 
 **Always use `predictions[1]` for classification tasks.**
 
@@ -191,7 +201,7 @@ Note: This is synchronous and blocks the UI. For production, consider async proc
 
 **Both:**
 - Require exact PCA transformation (35 → 16) from training
-- Cannot detect attack types not in training data (8 classes only)
+- Cannot detect attack types not in training data (6 classes only)
 - Performance may degrade with network traffic drift over time
 
 ### Critical Dependencies
@@ -239,7 +249,7 @@ Access via: `st.session_state['metadata']` after model loading.
 If implementing tests:
 - Mock model loading to avoid loading large .h5 files in every test
 - Use fixtures for sample data (16-component arrays)
-- Test prediction output shape: (class_name: str, probabilities: array(8), confidence: 0-100)
+- Test prediction output shape: (class_name: str, probabilities: array(6), confidence: 0-100)
 - Verify scaler transforms maintain correct dimensions (16,) → (1, 16) → (16,)
 
 ## Documentation Cross-References
