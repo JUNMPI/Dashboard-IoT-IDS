@@ -499,6 +499,109 @@ pip install -r requirements.txt
 
 ---
 
+## Documentación Visual
+
+### Arquitectura del Sistema
+
+Para una comprensión detallada de la arquitectura del sistema, consulta:
+
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Diagramas completos de arquitectura, flujo de datos, y componentes
+
+El documento incluye:
+- Diagrama de arquitectura general
+- Flujo de datos detallado
+- Arquitectura del modelo Autoencoder-FNN
+- Pipeline de predicción
+- Estructura de archivos y módulos
+- Flujo de sesión de usuario
+
+### Guía de Capturas Visuales
+
+Para crear screenshots y GIFs de demostración del sistema, consulta:
+
+- **[VISUAL_GUIDE.md](VISUAL_GUIDE.md)** - Guía completa para capturas de pantalla y GIFs
+
+La guía incluye:
+- Lista de screenshots requeridos (10 capturas)
+- Herramientas recomendadas por plataforma
+- Instrucciones paso a paso para cada captura
+- Scripts de grabación para GIFs
+- Técnicas de optimización
+- Consejos de calidad
+
+### Screenshots del Dashboard
+
+**Nota**: Los screenshots se crearán según la guía en `VISUAL_GUIDE.md` y se almacenarán en `docs/screenshots/`
+
+Capturas planificadas:
+1. Página principal con arquitectura del modelo
+2. Comparación de modelos (interfaz y resultados)
+3. Simulación en tiempo real (configuración y gráficos)
+4. Análisis de archivos (carga y resultados)
+5. Métricas del sistema (overview, matriz de confusión, comparación)
+
+### Demos en GIF
+
+**Nota**: Los GIFs de demostración se crearán según los scripts en `VISUAL_GUIDE.md` y se almacenarán en `docs/gifs/`
+
+Demos planificados:
+1. **Comparación de Modelos** (15-20s) - Proceso completo de comparación
+2. **Tiempo Real** (20-25s) - Simulación de tráfico con detección
+3. **Análisis de Archivo** (15-20s) - Upload y procesamiento de CSV
+4. **Navegación General** (20-25s) - Tour por todas las páginas
+
+---
+
+## Testing y Validación
+
+### Guía de Pruebas
+
+Para realizar pruebas funcionales del sistema, consulta:
+
+- **[TESTING.md](TESTING.md)** - Guía completa de testing con casos de prueba detallados
+
+La guía incluye:
+- Tests automatizados (`test_system.py`)
+- Tests manuales paso a paso
+- 10 casos de prueba detallados (CP-01 a CP-10)
+- Criterios de aceptación
+- Checklist de testing completo
+- Formato para reporte de bugs
+
+### Tests Automatizados
+
+El sistema incluye un script de testing automatizado:
+
+```bash
+# Ejecutar todos los tests
+python test_system.py
+```
+
+**Tests incluidos**:
+1. Importación de dependencias
+2. Estructura del proyecto
+3. Archivos de modelos
+4. Carga de modelos
+5. Simulación de datos
+6. Predicciones del modelo
+7. Visualizaciones
+8. Generación de reportes
+9. Páginas del dashboard
+
+### Tests Manuales
+
+Los tests manuales cubren:
+- Carga inicial del sistema
+- Comparación de modelos (sintético vs real)
+- Simulación en tiempo real (escenarios normal y ataque)
+- Análisis de archivos CSV
+- Visualización de métricas
+- Exportación de resultados (CSV y PDF)
+
+Ver `TESTING.md` para instrucciones detalladas.
+
+---
+
 ## Licencia
 
 Este proyecto es parte de una tesis de pregrado de la Universidad Señor de Sipán (USS) y está disponible solo para fines académicos y de demostración.
