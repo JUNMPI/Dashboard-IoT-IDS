@@ -52,25 +52,32 @@ def _load_model_with_compatibility(model_path: Path) -> tf.keras.Model:
         from tensorflow.keras import layers, Model
 
         # Define the Autoencoder-FNN architecture with LeakyReLU
+        # Arquitectura exacta del modelo guardado
+
         # Input layer
         input_layer = layers.Input(shape=(16,), name='Tensor_de_Entrada_X')
 
-        # Encoder
-        encoded = layers.Dense(8, name='dense')(input_layer)
-        encoded = layers.LeakyReLU(alpha=0.3, name='leaky_re_lu')(encoded)
-        encoded = layers.Dense(6, name='dense_1')(encoded)
-        encoded = layers.LeakyReLU(alpha=0.3, name='leaky_re_lu_1')(encoded)
+        # Encoder: 16 -> 12 -> 8 -> 6 (latente)
+        x = layers.Dense(12, activation='linear', name='dense')(input_layer)
+        x = layers.LeakyReLU(alpha=0.3, name='leaky_re_lu')(x)
+        x = layers.Dense(8, activation='linear', name='dense_1')(x)
+        x = layers.LeakyReLU(alpha=0.3, name='leaky_re_lu_1')(x)
+        latent = layers.Dense(6, activation='linear', name='Espacio_Latente_Z')(x)
+        latent_activated = layers.LeakyReLU(alpha=0.3, name='leaky_re_lu_2')(latent)
 
-        # Decoder
-        decoded = layers.Dense(8, name='dense_2')(encoded)
-        decoded = layers.LeakyReLU(alpha=0.3, name='leaky_re_lu_2')(decoded)
-        reconstruction = layers.Dense(16, activation='linear', name='Salida_Reconstruccion')(decoded)
+        # Decoder branch: 6 -> 8 -> 12 -> 16 (reconstrucción)
+        decoder = layers.Dense(8, activation='linear', name='dense_2')(latent_activated)
+        decoder = layers.LeakyReLU(alpha=0.3, name='leaky_re_lu_3')(decoder)
+        decoder = layers.Dense(12, activation='linear', name='dense_3')(decoder)
+        decoder = layers.LeakyReLU(alpha=0.3, name='leaky_re_lu_4')(decoder)
+        reconstruction = layers.Dense(16, activation='linear', name='Salida_Reconstruccion_Xp')(decoder)
 
-        # Classifier
-        classifier = layers.Dense(16, name='dense_3')(encoded)
-        classifier = layers.LeakyReLU(alpha=0.3, name='leaky_re_lu_3')(classifier)
-        classifier = layers.Dropout(0.3, name='dropout')(classifier)
-        classification = layers.Dense(6, activation='softmax', name='Salida_Clasificacion')(classifier)
+        # Classifier branch: 6 -> 64 -> 32 -> 6 (clasificación)
+        classifier = layers.Dense(64, activation='linear', name='dense_4')(latent_activated)
+        classifier = layers.LeakyReLU(alpha=0.3, name='leaky_re_lu_5')(classifier)
+        classifier = layers.Dense(32, activation='linear', name='dense_5')(classifier)
+        classifier = layers.LeakyReLU(alpha=0.3, name='leaky_re_lu_6')(classifier)
+        classification = layers.Dense(6, activation='softmax', name='Salida_Clasificacion_Yp')(classifier)
 
         # Create model
         model = Model(inputs=input_layer, outputs=[reconstruction, classification])
