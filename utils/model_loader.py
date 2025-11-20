@@ -26,15 +26,17 @@ logger = logging.getLogger(__name__)
 # Base paths
 BASE_DIR = Path(__file__).parent.parent
 MODELS_DIR = BASE_DIR / "models"
+SYNTHETIC_DIR = MODELS_DIR / "synthetic"
+REAL_DIR = MODELS_DIR / "real"
 
-# Synthetic model artifacts
+# Synthetic model artifacts (in models/synthetic/)
 SYNTHETIC_MODEL_FILE = "modelo_ae_fnn_iot_synthetic.h5"
 SYNTHETIC_SCALER_FILE = "scaler_synthetic.pkl"
 SYNTHETIC_ENCODER_FILE = "label_encoder_synthetic.pkl"
 SYNTHETIC_CLASSES_FILE = "class_names_synthetic.npy"
 SYNTHETIC_METADATA_FILE = "model_metadata_synthetic.json"
 
-# Real model artifacts
+# Real model artifacts (in models/real/)
 REAL_MODEL_FILE = "modelo_ae_fnn_iot_real.h5"
 REAL_SCALER_FILE = "scaler_real.pkl"
 REAL_ENCODER_FILE = "label_encoder_real.pkl"
@@ -123,7 +125,7 @@ def load_synthetic_model() -> Tuple[tf.keras.Model, Any, Any, np.ndarray, Dict[s
     logger.info("Loading synthetic model...")
 
     # Load model
-    model_path = MODELS_DIR / SYNTHETIC_MODEL_FILE
+    model_path = SYNTHETIC_DIR / SYNTHETIC_MODEL_FILE
     if not model_path.exists():
         raise FileNotFoundError(f"Model not found: {model_path}")
 
@@ -134,10 +136,10 @@ def load_synthetic_model() -> Tuple[tf.keras.Model, Any, Any, np.ndarray, Dict[s
         raise ValueError("Invalid model structure")
 
     # Load preprocessing artifacts
-    scaler = _load_pickle(MODELS_DIR / SYNTHETIC_SCALER_FILE)
-    label_encoder = _load_pickle(MODELS_DIR / SYNTHETIC_ENCODER_FILE)
-    class_names = _load_numpy(MODELS_DIR / SYNTHETIC_CLASSES_FILE)
-    metadata = _load_json(MODELS_DIR / SYNTHETIC_METADATA_FILE)
+    scaler = _load_pickle(SYNTHETIC_DIR / SYNTHETIC_SCALER_FILE)
+    label_encoder = _load_pickle(SYNTHETIC_DIR / SYNTHETIC_ENCODER_FILE)
+    class_names = _load_numpy(SYNTHETIC_DIR / SYNTHETIC_CLASSES_FILE)
+    metadata = _load_json(SYNTHETIC_DIR / SYNTHETIC_METADATA_FILE)
 
     logger.info("Synthetic model loaded successfully")
     return model, scaler, label_encoder, class_names, metadata
@@ -157,7 +159,7 @@ def load_real_model() -> Tuple[tf.keras.Model, Any, Any, np.ndarray, Dict[str, A
     logger.info("Loading real model...")
 
     # Load model
-    model_path = MODELS_DIR / REAL_MODEL_FILE
+    model_path = REAL_DIR / REAL_MODEL_FILE
     if not model_path.exists():
         raise FileNotFoundError(f"Model not found: {model_path}")
 
@@ -168,10 +170,10 @@ def load_real_model() -> Tuple[tf.keras.Model, Any, Any, np.ndarray, Dict[str, A
         raise ValueError("Invalid model structure")
 
     # Load preprocessing artifacts
-    scaler = _load_pickle(MODELS_DIR / REAL_SCALER_FILE)
-    label_encoder = _load_pickle(MODELS_DIR / REAL_ENCODER_FILE)
-    class_names = _load_numpy(MODELS_DIR / REAL_CLASSES_FILE)
-    metadata = _load_json(MODELS_DIR / REAL_METADATA_FILE)
+    scaler = _load_pickle(REAL_DIR / REAL_SCALER_FILE)
+    label_encoder = _load_pickle(REAL_DIR / REAL_ENCODER_FILE)
+    class_names = _load_numpy(REAL_DIR / REAL_CLASSES_FILE)
+    metadata = _load_json(REAL_DIR / REAL_METADATA_FILE)
 
     logger.info("Real model loaded successfully")
     return model, scaler, label_encoder, class_names, metadata
@@ -334,6 +336,7 @@ def check_model_files(model_type: str) -> Dict[str, bool]:
         Dictionary mapping filename to existence status
     """
     if model_type == 'synthetic':
+        base_dir = SYNTHETIC_DIR
         files = {
             'model': SYNTHETIC_MODEL_FILE,
             'scaler': SYNTHETIC_SCALER_FILE,
@@ -342,6 +345,7 @@ def check_model_files(model_type: str) -> Dict[str, bool]:
             'metadata': SYNTHETIC_METADATA_FILE
         }
     else:
+        base_dir = REAL_DIR
         files = {
             'model': REAL_MODEL_FILE,
             'scaler': REAL_SCALER_FILE,
@@ -352,7 +356,7 @@ def check_model_files(model_type: str) -> Dict[str, bool]:
 
     status = {}
     for key, filename in files.items():
-        filepath = MODELS_DIR / filename
+        filepath = base_dir / filename
         status[key] = filepath.exists()
 
     return status
