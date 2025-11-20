@@ -182,13 +182,30 @@ N_CLASSES = 6    # Normal + 5 attack types (brute_force, ddos, mitm, scan, spoof
 # =============================================================================
 
 def _load_pickle(filepath: Path) -> Any:
-    """Load pickled object safely."""
+    """Load pickled object safely with compatibility handling."""
     try:
+        # First attempt: Normal load
         with open(filepath, 'rb') as f:
             return pickle.load(f)
     except Exception as e:
-        logger.error(f"Error loading pickle from {filepath}: {e}")
-        raise
+        logger.warning(f"Normal pickle load failed: {str(e)[:100]}")
+
+        # Second attempt: Load with encoding='latin1' for Python 2/3 compatibility
+        try:
+            logger.info(f"Attempting pickle load with latin1 encoding...")
+            with open(filepath, 'rb') as f:
+                return pickle.load(f, encoding='latin1')
+        except Exception as e2:
+            logger.warning(f"Latin1 pickle load failed: {str(e2)[:100]}")
+
+            # Third attempt: Load with fix_imports for Python 2/3 compatibility
+            try:
+                logger.info(f"Attempting pickle load with fix_imports...")
+                with open(filepath, 'rb') as f:
+                    return pickle.load(f, fix_imports=True, encoding='bytes')
+            except Exception as e3:
+                logger.error(f"All pickle load attempts failed for {filepath}: {e3}")
+                raise
 
 def _load_numpy(filepath: Path) -> np.ndarray:
     """Load numpy array safely."""
