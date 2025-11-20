@@ -10,6 +10,7 @@ import numpy as np
 from pathlib import Path
 
 from utils.model_loader import load_model, get_model_info, check_model_files
+from utils.sidebar_component import render_sidebar
 
 # =============================================================================
 # PAGE CONFIGURATION
@@ -55,93 +56,11 @@ def init_session_state():
 init_session_state()
 
 # =============================================================================
-# SIDEBAR - MODEL SELECTOR
+# SIDEBAR - USING SHARED COMPONENT
 # =============================================================================
 
-with st.sidebar:
-    st.title("IoT-IDS")
-    st.markdown("---")
-
-    # Model selection
-    st.subheader("Configuración")
-
-    model_type = st.radio(
-        "Seleccionar Modelo:",
-        options=['synthetic', 'real'],
-        format_func=lambda x: {
-            'synthetic': 'Modelo Sintético (97.24%)',
-            'real': 'Modelo Real (84.48%)'
-        }[x],
-        key='model_selector'
-    )
-
-    # Load model if changed
-    if model_type != st.session_state.selected_model or not st.session_state.model_loaded:
-        st.session_state.selected_model = model_type
-
-        with st.spinner(f'Cargando modelo {model_type}...'):
-            try:
-                # Check if files exist
-                file_status = check_model_files(model_type)
-                missing_files = [k for k, v in file_status.items() if not v]
-
-                if missing_files:
-                    st.error(f"Archivos faltantes: {', '.join(missing_files)}")
-                    st.session_state.model_loaded = False
-                else:
-                    # Load model
-                    model, scaler, encoder, classes, metadata = load_model(model_type)
-
-                    # Store in session state
-                    st.session_state.model = model
-                    st.session_state.scaler = scaler
-                    st.session_state.label_encoder = encoder
-                    st.session_state.class_names = classes
-                    st.session_state.metadata = metadata
-                    st.session_state.model_loaded = True
-
-                    st.success(f"Modelo {model_type} cargado exitosamente")
-            except Exception as e:
-                st.error(f"Error al cargar modelo: {str(e)}")
-                st.session_state.model_loaded = False
-
-    # Model info (if loaded)
-    if st.session_state.model_loaded:
-        st.markdown("---")
-        st.subheader("Info del Modelo")
-
-        metadata = st.session_state.metadata
-
-        # Display key metrics
-        col1, col2 = st.columns(2)
-        with col1:
-            st.metric(
-                "Accuracy",
-                f"{metadata.get('test_accuracy', 0) * 100:.2f}%"
-            )
-        with col2:
-            st.metric(
-                "Clases",
-                metadata.get('num_classes', 6)
-            )
-
-        # Additional info in expander
-        with st.expander("Ver más detalles"):
-            st.write(f"**Tipo:** {metadata.get('model_type', 'N/A')}")
-            st.write(f"**Dataset:** {metadata.get('dataset_type', 'N/A')}")
-            st.write(f"**Input Dim:** {metadata.get('input_dim', 16)}")
-            st.write(f"**Latent Dim:** {metadata.get('latent_dim', 6)}")
-            st.write(f"**Épocas:** {metadata.get('epochs_trained', 'N/A')}")
-            st.write(f"**Batch Size:** {metadata.get('batch_size', 64)}")
-
-            # Loss components
-            st.markdown("**Pérdidas:**")
-            st.write(f"- Total: {metadata.get('test_loss_total', 0):.4f}")
-            st.write(f"- Reconstrucción: {metadata.get('test_loss_reconstruction', 0):.4f}")
-            st.write(f"- Clasificación: {metadata.get('test_loss_classification', 0):.4f}")
-
-    st.markdown("---")
-    st.caption("Universidad Señor de Sipán")
+# Render the shared sidebar component (ensures consistency across all pages)
+model_type = render_sidebar()
 
 # =============================================================================
 # MAIN CONTENT - HOMEPAGE

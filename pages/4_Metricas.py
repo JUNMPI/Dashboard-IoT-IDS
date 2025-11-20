@@ -12,6 +12,7 @@ from utils.visualizations import (
     plot_metrics_radar,
     create_metrics_table
 )
+from utils.sidebar_component import render_sidebar
 
 # =============================================================================
 # PAGE CONFIGURATION
@@ -21,6 +22,9 @@ st.set_page_config(
     page_title="Métricas del Modelo",
     layout="wide"
 )
+
+# Render shared sidebar for consistency
+render_sidebar()
 
 st.title("Métricas y Rendimiento del Modelo")
 st.markdown("Visualiza el desempeño y características del modelo entrenado")

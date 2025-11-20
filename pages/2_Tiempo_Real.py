@@ -18,6 +18,7 @@ from utils.visualizations import (
     plot_class_distribution,
     create_risk_gauge
 )
+from utils.sidebar_component import render_sidebar
 
 # =============================================================================
 # PAGE CONFIGURATION
@@ -27,6 +28,9 @@ st.set_page_config(
     page_title="Simulación en Tiempo Real",
     layout="wide"
 )
+
+# Render shared sidebar for consistency
+render_sidebar()
 
 st.title("Detección de Amenazas en Tiempo Real")
 st.markdown("Simula tráfico de red IoT y observa la detección de amenazas en vivo")

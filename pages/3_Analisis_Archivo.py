@@ -14,6 +14,7 @@ from utils.visualizations import (
     create_risk_gauge
 )
 from utils.report_generator import generate_analysis_report
+from utils.sidebar_component import render_sidebar
 
 # =============================================================================
 # PAGE CONFIGURATION
@@ -23,6 +24,9 @@ st.set_page_config(
     page_title="Análisis de Archivo",
     layout="wide"
 )
+
+# Render shared sidebar for consistency
+render_sidebar()
 
 st.title("Análisis de Archivo CSV")
 st.markdown("Carga un archivo CSV con datos de tráfico de red y obtén análisis detallado")

@@ -10,6 +10,7 @@ from utils.model_loader import load_model, predict_sample
 from utils.data_simulator import generate_traffic_sample, get_all_threat_types
 from utils.visualizations import plot_confidence_comparison
 from utils.report_generator import generate_comparison_report, save_report_to_file
+from utils.sidebar_component import render_sidebar
 
 # =============================================================================
 # PAGE CONFIGURATION
@@ -19,6 +20,9 @@ st.set_page_config(
     page_title="Comparación de Modelos",
     layout="wide"
 )
+
+# Render shared sidebar for consistency
+render_sidebar()
 
 st.title("Comparación de Modelos")
 st.markdown("Analiza y compara predicciones de ambos modelos en las mismas muestras")
