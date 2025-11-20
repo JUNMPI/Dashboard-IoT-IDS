@@ -1,0 +1,69 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+docs/
+README.md
+LICENSE
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Testing
+tests/
+*.test.py
+.pytest_cache/
+
+# Data files (opcional, descomentar si los datos son muy grandes)
+# data/*.csv
+# data/*.json
+
+# Temporal
+tmp/
+temp/
+*.tmp
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Jupyter
+*.ipynb
+.ipynb_checkpoints/
+
+# Backup files
+*.bak
+*.backup

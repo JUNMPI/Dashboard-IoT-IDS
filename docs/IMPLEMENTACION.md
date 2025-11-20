@@ -1182,4 +1182,4 @@ Una vez completadas las 5 fases:
 
 ---
 
-**Última actualización**: Noviembre 2024
+**Última actualización**: Diciembre 2025

@@ -3,6 +3,7 @@
 ![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.15-orange.svg)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.25+-red.svg)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)
 ![License](https://img.shields.io/badge/license-Academic-green.svg)
 
 Dashboard interactivo para demostración de sistema de detección de intrusiones en redes IoT utilizando modelos Autoencoder-FNN multi-tarea con aprendizaje profundo.
@@ -175,6 +176,128 @@ El dashboard se abrirá automáticamente en `http://localhost:8501`
 
 ---
 
+## Deployment con Docker
+
+El proyecto incluye soporte completo para containerización con Docker, facilitando el deployment en cualquier entorno.
+
+### Opción 1: Docker Compose (Recomendado)
+
+**Requisitos:**
+- Docker Desktop (Windows/Mac) o Docker Engine (Linux)
+- Docker Compose v2.0+
+
+**Pasos:**
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/JUNMPI/Dashboard-IoT-IDS.git
+cd Dashboard-IoT-IDS
+
+# 2. Construir y ejecutar con un solo comando
+docker-compose up -d
+
+# 3. Verificar que el contenedor está corriendo
+docker-compose ps
+
+# 4. Ver logs en tiempo real
+docker-compose logs -f
+
+# 5. Acceder al dashboard
+# Abrir navegador en http://localhost:8501
+```
+
+**Comandos útiles:**
+
+```bash
+# Detener el servicio
+docker-compose down
+
+# Reconstruir después de cambios en código
+docker-compose up -d --build
+
+# Reiniciar el servicio
+docker-compose restart
+
+# Ver logs de las últimas 100 líneas
+docker-compose logs --tail=100
+```
+
+### Opción 2: Docker Manual
+
+```bash
+# 1. Construir la imagen
+docker build -t iot-ids-dashboard .
+
+# 2. Ejecutar el contenedor
+docker run -d \
+  -p 8501:8501 \
+  -v $(pwd)/models:/app/models:ro \
+  -v $(pwd)/data:/app/data \
+  --name iot-ids \
+  iot-ids-dashboard
+
+# 3. Ver logs
+docker logs -f iot-ids
+
+# 4. Detener y eliminar el contenedor
+docker stop iot-ids
+docker rm iot-ids
+```
+
+### Características del Contenedor
+
+- **Base Image**: Python 3.11-slim
+- **Puerto Expuesto**: 8501
+- **Health Check**: Endpoint `/_stcore/health` cada 30s
+- **Volúmenes**:
+  - `./models:/app/models` - Modelos entrenados (solo lectura)
+  - `./data:/app/data` - Datos de entrada/salida
+- **Variables de Entorno**:
+  - `STREAMLIT_SERVER_PORT=8501`
+  - `STREAMLIT_SERVER_ADDRESS=0.0.0.0`
+  - `STREAMLIT_BROWSER_GATHER_USAGE_STATS=false`
+
+### Verificación del Deployment
+
+```bash
+# Verificar que el contenedor está saludable
+docker ps
+# Debe mostrar "healthy" en STATUS
+
+# Probar el endpoint de salud
+curl http://localhost:8501/_stcore/health
+
+# Respuesta esperada: {"status": "ok"}
+```
+
+### Solución de Problemas con Docker
+
+**1. Puerto 8501 ya está en uso:**
+```bash
+# Usar un puerto diferente
+docker-compose down
+# Editar docker-compose.yml: cambiar "8501:8501" a "8502:8501"
+docker-compose up -d
+```
+
+**2. Error al montar volumen de modelos:**
+```bash
+# Verificar que la carpeta models/ existe y tiene los archivos
+ls -la models/synthetic/
+ls -la models/real/
+```
+
+**3. Contenedor se reinicia constantemente:**
+```bash
+# Ver logs para identificar el error
+docker-compose logs --tail=50
+
+# Verificar que requirements.txt está completo
+docker-compose exec iot-ids-dashboard pip list
+```
+
+---
+
 ## Uso del Dashboard
 
 ### Página Principal
@@ -247,6 +370,11 @@ Dashboard-IoT-IDS/
 ├── app.py                          # Aplicación principal
 ├── requirements.txt                # Dependencias
 ├── README.md                       # Este archivo
+├── LICENSE                         # Licencia MIT
+│
+├── Dockerfile                      # Container definition
+├── docker-compose.yml              # Docker Compose config
+├── .dockerignore                   # Docker exclusions
 │
 ├── models/                         # Modelos entrenados
 │   ├── synthetic/                  # Modelo sintético
