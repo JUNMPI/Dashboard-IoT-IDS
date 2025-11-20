@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2024 Junior - Universidad Señor de Sipán
+Copyright (c) 2025 Junior Alvines - Universidad Señor de Sipán
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,10 +22,18 @@ SOFTWARE.
 
 ---
 
-NOTA ACADÉMICA:
-Este proyecto es parte de una tesis de pregrado de la Universidad Señor de Sipán (USS).
-Si utilizas este código o metodología, por favor cita apropiadamente:
+ACADEMIC NOTICE:
 
-[Apellido], Junior. (2024). Clasificación de tráfico de red y fortalecimiento
-de la ciberseguridad en entornos de IoT utilizando aprendizaje profundo.
-Tesis de pregrado, Universidad Señor de Sipán, Perú.
+This project was developed as part of an undergraduate thesis at Universidad
+Señor de Sipán (USS), Peru. The software is provided for demonstration and
+educational purposes.
+
+For academic citations, please reference:
+- Author: Junior Alvines
+- Institution: Universidad Señor de Sipán (USS)
+- Year: 2025
+- Title: "Clasificación de tráfico de red y fortalecimiento de la ciberseguridad
+  en entornos de IoT utilizando aprendizaje profundo"
+
+While this software is open source under the MIT License, proper academic
+attribution is expected when using or referencing this work in academic contexts.
