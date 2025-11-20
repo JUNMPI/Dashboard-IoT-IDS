@@ -14,10 +14,64 @@ import logging
 import numpy as np
 import streamlit as st
 import tensorflow as tf
+from tensorflow import keras
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# =============================================================================
+# CUSTOM MODEL LOADING TO HANDLE KERAS VERSION COMPATIBILITY
+# =============================================================================
+
+def _load_model_with_compatibility(model_path: Path) -> tf.keras.Model:
+    """
+    Load Keras model with compatibility handling for different versions.
+
+    Handles the batch_shape parameter issue when loading models saved with
+    older versions of Keras.
+
+    Args:
+        model_path: Path to the .h5 model file
+
+    Returns:
+        Loaded Keras model
+    """
+    try:
+        # Try loading normally first
+        model = tf.keras.models.load_model(model_path, compile=False)
+        return model
+    except Exception as e:
+        if 'batch_shape' in str(e):
+            logger.warning(f"Batch_shape compatibility issue detected. Attempting custom load...")
+
+            # Custom objects to handle batch_shape -> input_shape conversion
+            def custom_input_layer(*args, **kwargs):
+                # Remove batch_shape and use input_shape instead
+                if 'batch_shape' in kwargs:
+                    batch_shape = kwargs.pop('batch_shape')
+                    if batch_shape and len(batch_shape) > 1:
+                        kwargs['shape'] = batch_shape[1:]  # Remove batch dimension
+                return keras.layers.InputLayer(*args, **kwargs)
+
+            custom_objects = {
+                'InputLayer': custom_input_layer
+            }
+
+            try:
+                model = tf.keras.models.load_model(
+                    model_path,
+                    custom_objects=custom_objects,
+                    compile=False
+                )
+                logger.info("Model loaded successfully with custom compatibility layer")
+                return model
+            except Exception as e2:
+                logger.error(f"Failed to load model even with custom objects: {e2}")
+                raise
+        else:
+            logger.error(f"Error loading model: {e}")
+            raise
 
 # =============================================================================
 # CONFIGURATION - Update these with your actual filenames
@@ -129,7 +183,7 @@ def load_synthetic_model() -> Tuple[tf.keras.Model, Any, Any, np.ndarray, Dict[s
     if not model_path.exists():
         raise FileNotFoundError(f"Model not found: {model_path}")
 
-    model = tf.keras.models.load_model(model_path, compile=False)
+    model = _load_model_with_compatibility(model_path)
 
     # Verify structure
     if not _verify_model_structure(model):
@@ -163,7 +217,7 @@ def load_real_model() -> Tuple[tf.keras.Model, Any, Any, np.ndarray, Dict[str, A
     if not model_path.exists():
         raise FileNotFoundError(f"Model not found: {model_path}")
 
-    model = tf.keras.models.load_model(model_path, compile=False)
+    model = _load_model_with_compatibility(model_path)
 
     # Verify structure
     if not _verify_model_structure(model):
