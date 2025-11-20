@@ -28,8 +28,8 @@ def _load_model_with_compatibility(model_path: Path) -> tf.keras.Model:
     """
     Load Keras model with compatibility handling for different versions.
 
-    Handles the batch_shape parameter issue when loading models saved with
-    older versions of Keras.
+    Handles compatibility issues when loading models saved with different
+    Keras versions (batch_shape, DTypePolicy, etc.).
 
     Args:
         model_path: Path to the .h5 model file
@@ -37,41 +37,99 @@ def _load_model_with_compatibility(model_path: Path) -> tf.keras.Model:
     Returns:
         Loaded Keras model
     """
+    # First attempt: Normal load
     try:
-        # Try loading normally first
         model = tf.keras.models.load_model(model_path, compile=False)
+        logger.info("Model loaded successfully (normal load)")
         return model
     except Exception as e:
-        if 'batch_shape' in str(e):
-            logger.warning(f"Batch_shape compatibility issue detected. Attempting custom load...")
+        logger.warning(f"Normal load failed: {str(e)[:100]}...")
 
-            # Custom objects to handle batch_shape -> input_shape conversion
-            def custom_input_layer(*args, **kwargs):
-                # Remove batch_shape and use input_shape instead
-                if 'batch_shape' in kwargs:
-                    batch_shape = kwargs.pop('batch_shape')
-                    if batch_shape and len(batch_shape) > 1:
-                        kwargs['input_shape'] = batch_shape[1:]  # Remove batch dimension
-                return keras.layers.InputLayer(*args, **kwargs)
+    # Second attempt: Load weights only (most compatible approach)
+    try:
+        logger.info("Attempting to load using load_weights approach...")
 
-            custom_objects = {
-                'InputLayer': custom_input_layer
-            }
+        # Load the model architecture from JSON in metadata
+        metadata_path = model_path.parent / model_path.name.replace('.h5', '_metadata.json').replace('modelo_ae_fnn_iot_', 'model_metadata_')
 
-            try:
-                model = tf.keras.models.load_model(
-                    model_path,
-                    custom_objects=custom_objects,
-                    compile=False
-                )
-                logger.info("Model loaded successfully with custom compatibility layer")
-                return model
-            except Exception as e2:
-                logger.error(f"Failed to load model even with custom objects: {e2}")
-                raise
-        else:
-            logger.error(f"Error loading model: {e}")
-            raise
+        # For now, we'll reconstruct the model manually based on known architecture
+        # This is the most reliable approach for cross-version compatibility
+
+        from tensorflow.keras import layers, Model
+
+        # Define the Autoencoder-FNN architecture
+        # Input layer
+        input_layer = layers.Input(shape=(16,), name='input_layer')
+
+        # Encoder
+        encoded = layers.Dense(8, activation='relu', name='encoder_dense_1')(input_layer)
+        encoded = layers.Dense(6, activation='relu', name='encoder_dense_2')(encoded)
+
+        # Decoder
+        decoded = layers.Dense(8, activation='relu', name='decoder_dense_1')(encoded)
+        reconstruction = layers.Dense(16, activation='linear', name='reconstruction_output')(decoded)
+
+        # Classifier
+        classifier = layers.Dense(16, activation='relu', name='classifier_dense_1')(encoded)
+        classifier = layers.Dropout(0.3, name='classifier_dropout')(classifier)
+        classification = layers.Dense(6, activation='softmax', name='classification_output')(classifier)
+
+        # Create model
+        model = Model(inputs=input_layer, outputs=[reconstruction, classification])
+
+        # Load weights
+        model.load_weights(str(model_path))
+
+        logger.info("Model loaded successfully using manual architecture + load_weights")
+        return model
+
+    except Exception as e2:
+        logger.warning(f"Load weights approach failed: {str(e2)[:100]}...")
+
+    # Third attempt: With custom objects for compatibility
+    try:
+        logger.info("Attempting load with comprehensive custom objects...")
+
+        # Mock DTypePolicy for compatibility
+        class DTypePolicy:
+            def __init__(self, name='float32'):
+                self.name = name
+
+            def get_config(self):
+                return {'name': self.name}
+
+        # Custom InputLayer
+        def custom_input_layer(*args, **kwargs):
+            if 'batch_shape' in kwargs:
+                batch_shape = kwargs.pop('batch_shape')
+                if batch_shape and len(batch_shape) > 1:
+                    kwargs['input_shape'] = batch_shape[1:]
+            return keras.layers.InputLayer(*args, **kwargs)
+
+        # Custom Dense layer that handles DTypePolicy
+        def custom_dense(*args, **kwargs):
+            # Remove or convert DTypePolicy
+            if 'dtype' in kwargs and isinstance(kwargs['dtype'], dict):
+                if kwargs['dtype'].get('class_name') == 'DTypePolicy':
+                    dtype_name = kwargs['dtype'].get('config', {}).get('name', 'float32')
+                    kwargs['dtype'] = dtype_name
+            return keras.layers.Dense(*args, **kwargs)
+
+        custom_objects = {
+            'DTypePolicy': DTypePolicy,
+            'InputLayer': custom_input_layer,
+            'Dense': custom_dense,
+        }
+
+        with keras.utils.custom_object_scope(custom_objects):
+            model = tf.keras.models.load_model(model_path, compile=False)
+
+        logger.info("Model loaded successfully with custom objects")
+        return model
+
+    except Exception as e3:
+        logger.error(f"All loading attempts failed. Final error: {e3}")
+        raise Exception(f"Could not load model from {model_path}. Last error: {e3}")
 
 # =============================================================================
 # CONFIGURATION - Update these with your actual filenames
