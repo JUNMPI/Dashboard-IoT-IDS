@@ -181,31 +181,57 @@ N_CLASSES = 6    # Normal + 5 attack types (brute_force, ddos, mitm, scan, spoof
 # HELPER FUNCTIONS
 # =============================================================================
 
+class CompatibleUnpickler(pickle.Unpickler):
+    """Custom unpickler for handling cross-version compatibility."""
+
+    def find_class(self, module, name):
+        """Override to handle module/class name changes."""
+        # Handle sklearn module renames
+        if module.startswith('sklearn.'):
+            try:
+                return super().find_class(module, name)
+            except (AttributeError, ModuleNotFoundError):
+                # Try alternative imports
+                logger.debug(f"Remapping {module}.{name}")
+                pass
+
+        return super().find_class(module, name)
+
 def _load_pickle(filepath: Path) -> Any:
     """Load pickled object safely with compatibility handling."""
+    # First attempt: Normal load
     try:
-        # First attempt: Normal load
         with open(filepath, 'rb') as f:
             return pickle.load(f)
     except Exception as e:
         logger.warning(f"Normal pickle load failed: {str(e)[:100]}")
 
-        # Second attempt: Load with encoding='latin1' for Python 2/3 compatibility
-        try:
-            logger.info(f"Attempting pickle load with latin1 encoding...")
-            with open(filepath, 'rb') as f:
-                return pickle.load(f, encoding='latin1')
-        except Exception as e2:
-            logger.warning(f"Latin1 pickle load failed: {str(e2)[:100]}")
+    # Second attempt: Use compatible unpickler with latin1
+    try:
+        logger.info(f"Attempting compatible unpickler with latin1...")
+        with open(filepath, 'rb') as f:
+            return CompatibleUnpickler(f, encoding='latin1').load()
+    except Exception as e2:
+        logger.warning(f"Compatible unpickler failed: {str(e2)[:100]}")
 
-            # Third attempt: Load with fix_imports for Python 2/3 compatibility
-            try:
-                logger.info(f"Attempting pickle load with fix_imports...")
-                with open(filepath, 'rb') as f:
-                    return pickle.load(f, fix_imports=True, encoding='bytes')
-            except Exception as e3:
-                logger.error(f"All pickle load attempts failed for {filepath}: {e3}")
-                raise
+    # Third attempt: Try with pickle5 compatibility if available
+    try:
+        logger.info(f"Attempting with pickle protocol compatibility...")
+        import io
+        with open(filepath, 'rb') as f:
+            data = f.read()
+        return pickle.loads(data, encoding='latin1', errors='ignore')
+    except Exception as e3:
+        logger.warning(f"Protocol compatibility failed: {str(e3)[:100]}")
+
+    # Fourth attempt: Try loading with joblib (often used for sklearn objects)
+    try:
+        logger.info(f"Attempting load with joblib...")
+        import joblib
+        return joblib.load(filepath)
+    except Exception as e4:
+        logger.error(f"All pickle load attempts failed for {filepath}: {e4}")
+        raise Exception(f"Could not load pickle file {filepath}. Try regenerating the file with current Python/sklearn version.")
 
 def _load_numpy(filepath: Path) -> np.ndarray:
     """Load numpy array safely."""
