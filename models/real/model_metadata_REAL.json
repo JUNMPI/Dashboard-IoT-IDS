@@ -1,0 +1,27 @@
+{
+    "model_type": "Autoencoder-FNN Multi-Task",
+    "dataset_type": "CICIoT2023 Real Dataset",
+    "num_classes": 6,
+    "class_names": [
+        "brute_force",
+        "ddos",
+        "mitm",
+        "normal",
+        "scan",
+        "spoofing"
+    ],
+    "input_dim": 16,
+    "latent_dim": 6,
+    "lambda_peso_reconstruction": 0.3,
+    "lambda_peso_classification": 0.7,
+    "training_samples": 1320316,
+    "validation_samples": 282925,
+    "test_samples": 282926,
+    "epochs_trained": 96,
+    "batch_size": 64,
+    "optimizer": "adam",
+    "test_accuracy": 0.8448251485824585,
+    "test_loss_total": 0.37987518310546875,
+    "test_loss_reconstruction": 0.20969629287719727,
+    "test_loss_classification": 0.4528302550315857
+}

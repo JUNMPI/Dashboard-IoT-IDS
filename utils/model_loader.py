@@ -37,11 +37,11 @@ SYNTHETIC_CLASSES_FILE = "class_names_synthetic.npy"
 SYNTHETIC_METADATA_FILE = "model_metadata_synthetic.json"
 
 # Real model artifacts (in models/real/)
-REAL_MODEL_FILE = "modelo_ae_fnn_iot_real.h5"
-REAL_SCALER_FILE = "scaler_real.pkl"
-REAL_ENCODER_FILE = "label_encoder_real.pkl"
-REAL_CLASSES_FILE = "class_names_real.npy"
-REAL_METADATA_FILE = "model_metadata_real.json"
+REAL_MODEL_FILE = "modelo_ae_fnn_iot_REAL.h5"
+REAL_SCALER_FILE = "scaler_REAL.pkl"
+REAL_ENCODER_FILE = "label_encoder_REAL.pkl"
+REAL_CLASSES_FILE = "class_names_REAL.npy"
+REAL_METADATA_FILE = "model_metadata_REAL.json"
 
 # Model configuration
 N_FEATURES = 16  # PCA components (PC1-PC16)
