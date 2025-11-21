@@ -961,7 +961,7 @@ with tab3:
            ↓
     Dense Layer:  16 neurons (ReLU) + Dropout(0.3)
            ↓
-    Output Layer:  8 classes (Softmax)
+    Output Layer:  6 classes (Softmax)
     ```
 
     ### Función de Pérdida Combinada

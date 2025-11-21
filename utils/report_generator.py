@@ -201,7 +201,7 @@ def _create_header(model_name: str) -> List[Any]:
     info = f"""
     <b>Report Generated:</b> {timestamp}<br/>
     <b>Analysis Type:</b> IoT Network Traffic Classification<br/>
-    <b>Threat Categories:</b> 8 (Benign + 7 Attack Types)
+    <b>Threat Categories:</b> 6 (Normal + 5 Attack Types: Brute Force, DDoS, MITM, Scan, Spoofing)
     """
     elements.append(Paragraph(info, BODY_STYLE))
     elements.append(Spacer(1, 30))

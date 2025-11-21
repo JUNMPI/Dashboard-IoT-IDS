@@ -14,8 +14,8 @@
 
 | Aspecto | Cumplimiento | Evidencia en el Proyecto |
 |---------|--------------|--------------------------|
-| **Clasificación de tráfico** | ✅ CUMPLIDO | Sistema clasifica tráfico en 8 categorías con 97% accuracy |
-| **Fortalecimiento de ciberseguridad** | ✅ CUMPLIDO | Detección de 7 tipos de amenazas en <2ms, FPR <2% |
+| **Clasificación de tráfico** | ✅ CUMPLIDO | Sistema clasifica tráfico en 6 categorías con 97% accuracy |
+| **Fortalecimiento de ciberseguridad** | ✅ CUMPLIDO | Detección de 5 tipos de amenazas en <2ms, FPR <2% |
 | **Entornos de IoT** | ✅ CUMPLIDO | Dataset y modelos específicos para tráfico IoT |
 | **Aprendizaje profundo** | ✅ CUMPLIDO | Arquitectura Autoencoder-FNN implementada |
 
@@ -305,7 +305,7 @@ Este objetivo demuestra:
 
 1. **Demostración Práctica de Fortalecimiento**
    - ✅ Sistema funcional de detección en tiempo real
-   - ✅ Identificación de 7 tipos de amenazas IoT
+   - ✅ Identificación de 5 tipos de amenazas IoT (Brute Force, DDoS, MITM, Scan, Spoofing)
    - ✅ Alertas automáticas ante ataques
    - ✅ Capacidad de respuesta inmediata (<2ms)
 
