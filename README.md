@@ -22,6 +22,42 @@ Dashboard interactivo para demostración de sistema de detección de intrusiones
 
 ---
 
+## Capturas de Pantalla
+
+### Página Principal
+![Página Principal](docs/screenshots/01_homepage.png)
+*Dashboard principal mostrando arquitectura del modelo y métricas de rendimiento*
+
+### Sidebar Profesional
+![Sidebar](docs/screenshots/02_sidebar_model_selection.png)
+*Sidebar mejorado con selector de modelo, métricas y navegación*
+
+### Comparación de Modelos
+![Comparación de Modelos](docs/screenshots/03_comparacion_modelos.png)
+*Análisis comparativo lado a lado entre modelo sintético y real*
+
+### Simulación en Tiempo Real - Tráfico Normal
+![Tiempo Real Normal](docs/screenshots/04_tiempo_real_normal.png)
+*Simulación de tráfico IoT normal con bajo nivel de amenazas*
+
+### Simulación en Tiempo Real - Bajo Ataque DDoS
+![Tiempo Real Ataque](docs/screenshots/05_tiempo_real_ataque.png)
+*Detección de ataque DDoS en tiempo real con nivel de riesgo ALTO*
+
+### Análisis de Archivo CSV
+![Análisis de Archivo](docs/screenshots/06_analisis_archivo.png)
+*Procesamiento batch de archivos CSV con distribución de amenazas*
+
+### Métricas y Matriz de Confusión
+![Métricas](docs/screenshots/07_metricas_matriz.png)
+*Dashboard de métricas con matriz de confusión 6×6 y rendimiento por clase*
+
+### Reporte PDF Generado
+![Reporte PDF](docs/screenshots/08_reporte_pdf.png)
+*Ejemplo de reporte PDF profesional con análisis completo*
+
+---
+
 ## Arquitectura del Modelo
 
 ### Autoencoder-FNN Multi-tarea
