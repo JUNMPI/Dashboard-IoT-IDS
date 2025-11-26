@@ -1,5 +1,23 @@
 # DOCUMENTACIÓN TÉCNICA: DESARROLLO DE APLICACIÓN IoT-IDS
 
+## Resumen Ejecutivo
+
+El **Dashboard IoT-IDS** es una aplicación web interactiva desarrollada como herramienta de demostración para la detección de intrusiones en redes de Internet de las Cosas (IoT). El sistema implementa un modelo de Deep Learning basado en arquitectura Autoencoder-FNN multi-tarea, capaz de clasificar tráfico de red en 6 categorías: tráfico normal y 5 tipos de amenazas cibernéticas (Brute Force, DDoS, Man-in-the-Middle, Scan y Spoofing).
+
+Construida enteramente en Python utilizando el framework Streamlit, la aplicación proporciona una interfaz visual intuitiva que permite a usuarios técnicos y no técnicos:
+
+- **Simular amenazas en tiempo real** mediante generación sintética de tráfico IoT
+- **Analizar archivos CSV** con datos de tráfico de red mediante procesamiento por lotes
+- **Comparar el rendimiento** de dos modelos entrenados (sintético vs. real)
+- **Visualizar métricas** de rendimiento y análisis detallados con gráficos interactivos
+- **Exportar reportes PDF** profesionales de los análisis realizados
+
+El sistema trabaja con datos pre-procesados mediante PCA (16 componentes principales) y utiliza modelos pre-entrenados en TensorFlow/Keras, logrando una precisión de **97.24% en datos sintéticos** y **84.48% en datos del mundo real (CICIoT2023)**. La arquitectura del modelo combina técnicas de aprendizaje no supervisado (autoencoder para reconstrucción) y supervisado (clasificador FNN) en una función de pérdida multi-objetivo.
+
+**Importante**: Este sistema NO es un testbed IoT físico ni captura tráfico de red en tiempo real. Es una herramienta de inferencia y visualización diseñada específicamente para fines académicos y demostrativos, que permite evaluar la viabilidad de técnicas de Machine Learning aplicadas a ciberseguridad IoT.
+
+---
+
 ## Índice
 1. [Descripción General del Sistema](#1-descripción-general-del-sistema)
 2. [Estructura del Proyecto](#2-estructura-del-proyecto)
