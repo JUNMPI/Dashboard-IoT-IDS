@@ -6,15 +6,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is an IoT Intrusion Detection System (IoT-IDS) demo application built for an undergraduate thesis at Universidad Señor de Sipán. It implements an Autoencoder-FNN (AE-FNN) multi-task deep learning model to detect threats in IoT network traffic.
 
-**Two models are compared:**
-- **Synthetic Model**: 97% accuracy on balanced synthetic PCA data
-- **Real Model**: 84.48% accuracy on CICIoT2023 real-world data
+**Important**: The same AE-FNN model architecture is used in both cases. What differs is the dataset used for training:
+- **Synthetic Dataset**: Model trained on balanced synthetic PCA data (97.24% accuracy)
+- **Real Dataset**: Model trained on CICIoT2023 real-world data (84.48% accuracy)
 
 **Detected threat types (6 classes):** normal, brute_force, ddos, mitm, scan, spoofing
 
 ## Development Commands
 
+**Note**: This project was primarily developed on Windows. Paths use backslashes (`\`) in Windows but forward slashes (`/`) work in the Python code across all platforms.
+
 ### Running the Application
+
+**Local Development:**
 ```bash
 # Activate virtual environment (if not already activated)
 venv\Scripts\activate  # Windows
@@ -25,6 +29,26 @@ streamlit run app.py
 
 # Run on specific port
 streamlit run app.py --server.port 8502
+```
+
+**Docker (Recommended for Production):**
+```bash
+# Using Docker Compose (easiest)
+docker-compose up -d
+
+# Manual Docker build and run
+docker build -t iot-ids-dashboard .
+docker run -d -p 8501:8501 --name iot-ids iot-ids-dashboard
+
+# View logs
+docker-compose logs -f
+# or
+docker logs -f iot-ids
+
+# Stop and remove
+docker-compose down
+# or
+docker stop iot-ids && docker rm iot-ids
 ```
 
 ### Installing Dependencies
@@ -58,11 +82,11 @@ pytest tests/test_model_loader.py
 The core model combines two architectures:
 
 1. **Autoencoder (AE)**: Compresses 16 PCA components → 6 latent dimensions → 16 reconstructed
-   - Encoder: 16 → 8 (ReLU) → 6 (ReLU)
-   - Decoder: 6 → 8 (ReLU) → 16 (Linear)
+   - Encoder: 16 → 12 (LeakyReLU 0.3) → 8 (LeakyReLU 0.3) → 6 (LeakyReLU 0.3)
+   - Decoder: 6 → 8 (LeakyReLU 0.3) → 12 (LeakyReLU 0.3) → 16 (Linear)
 
 2. **Feedforward Classifier (FNN)**: Classifies from latent space
-   - From latent: 6 → 16 (ReLU, Dropout 0.3) → 6 (Softmax)
+   - From latent: 6 → 64 (LeakyReLU 0.3) → 32 (LeakyReLU 0.3) → 6 (Softmax)
 
 **Combined Loss:** `Total Loss = 0.3 × MSE_reconstruction + 0.7 × CrossEntropy_classification`
 
@@ -89,8 +113,9 @@ Input (16 PCA components, raw)
 
 Streamlit shares state across pages via `st.session_state`:
 
-**Global (app.py):**
-- `current_model`: 'synthetic' or 'real'
+**Global (set by sidebar_component.py):**
+- `selected_model`: 'synthetic' or 'real' (indicates which dataset/trained model is active)
+- `model_loaded`: Boolean indicating if model artifacts are loaded
 - `model`, `scaler`, `label_encoder`, `class_names`, `metadata`: Model components
 
 **Page-specific examples:**
@@ -99,18 +124,43 @@ Streamlit shares state across pages via `st.session_state`:
 
 Use `@st.cache_resource` for models (shared across users, not serialized) and `@st.cache_data` for data processing.
 
+### Shared Sidebar Component Pattern
+
+**Critical Architecture Detail**: All pages use a shared sidebar component (`utils/sidebar_component.py`) to ensure consistency.
+
+**How it works:**
+1. Import `from utils.sidebar_component import render_sidebar`
+2. Call `render_sidebar()` at the top of each page (after `st.set_page_config()`)
+3. The function handles:
+   - Dataset selection UI (radio buttons for synthetic/real datasets)
+   - Automatic model loading when dataset selection changes
+   - Display of model metrics and info
+   - Storing all artifacts in `st.session_state`
+4. Returns the selected dataset type ('synthetic' or 'real')
+
+**Note**: The UI correctly refers to "Dataset" selection, not "Model" selection, since the same
+AE-FNN architecture is used for both - only the training data differs.
+
+**Session state variables set by sidebar:**
+- `model_loaded` (bool)
+- `selected_model` ('synthetic' or 'real')
+- `model`, `scaler`, `label_encoder`, `class_names`, `metadata`
+
+This pattern eliminates code duplication and ensures all pages have identical sidebar UI/UX.
+
 ## Project Structure
 
 ```
 Dashboard IoT-IDS/
 ├── app.py                    # Main entry point - home page, model selector
 ├── pages/                    # Streamlit multi-page modules
-│   ├── 1_🔬_Comparacion_Modelos.py    # Side-by-side model comparison
-│   ├── 2_⚡_Tiempo_Real.py             # Real-time threat simulation
-│   ├── 3_📊_Analisis_Archivo.py        # Batch CSV file analysis
-│   └── 4_📈_Metricas.py                # Metrics dashboard
+│   ├── 1_Comparacion_Modelos.py    # Side-by-side model comparison
+│   ├── 2_Tiempo_Real.py             # Real-time threat simulation
+│   ├── 3_Carga_de_Datos.py          # Batch CSV file upload and analysis
+│   └── 4_Metricas.py                # Metrics dashboard
 ├── utils/                    # Reusable utility modules
-│   ├── model_loader.py       # Model loading, prediction functions
+│   ├── model_loader.py       # Model loading, prediction functions, Keras compatibility
+│   ├── sidebar_component.py  # Shared sidebar component for all pages
 │   ├── data_simulator.py     # Synthetic traffic generation
 │   ├── visualizations.py     # Plotly/matplotlib visualizations
 │   └── report_generator.py   # PDF report generation (reportlab)
@@ -145,14 +195,21 @@ Models are cached using `@st.cache_resource` to load once and share across all s
 
 ```python
 @st.cache_resource
-def load_synthetic_model():
-    model = tf.keras.models.load_model('models/modelo_ae_fnn_iot_synthetic.h5')
-    scaler = pickle.load(open('models/scaler_synthetic.pkl', 'rb'))
-    label_encoder = pickle.load(open('models/label_encoder_synthetic.pkl', 'rb'))
-    class_names = np.load('models/class_names_synthetic.npy')
-    metadata = json.load(open('models/model_metadata_synthetic.json'))
-    return model, scaler, label_encoder, class_names, metadata
+def load_model(model_type: str):
+    """Load model with all artifacts.
+
+    The model_loader.py includes compatibility handling for different Keras versions:
+    1. Attempts normal load_model()
+    2. Falls back to manual architecture + load_weights() if needed
+    3. Uses custom objects for compatibility with older saved models
+    """
+    model, scaler, encoder, classes, metadata = load_model(model_type)
+    return model, scaler, encoder, classes, metadata
 ```
+
+**Important**: The `model_loader.py` module includes comprehensive Keras version compatibility
+handling that automatically falls back to manual architecture reconstruction if normal loading
+fails. This resolves issues with models saved in different Keras/TensorFlow versions.
 
 ### Model Output Structure
 
@@ -229,10 +286,15 @@ Note: This is synchronous and blocks the UI. For production, consider async proc
 
 ### Creating a New Page
 
-1. Create file in `pages/` with format: `N_emoji_Name.py` (e.g., `5_🔍_Custom_Analysis.py`)
+1. Create file in `pages/` with format: `N_Name.py` (e.g., `5_Custom_Analysis.py`)
 2. Use `st.set_page_config()` at the top
-3. Check if model is loaded: `if 'model' not in st.session_state: st.error(...); st.stop()`
-4. Access shared model via `st.session_state['model']`, etc.
+3. **Import and call `render_sidebar()`** from `utils.sidebar_component` for consistent UI
+4. The sidebar automatically loads the selected model into session state
+5. Check if model is loaded: `if not st.session_state.get('model_loaded'): st.error(...); st.stop()`
+6. Access shared model via `st.session_state['model']`, `st.session_state['scaler']`, etc.
+
+**Critical**: Always call `render_sidebar()` at the beginning of each page to ensure
+consistent sidebar appearance and model loading across all pages.
 
 ### Working with Model Metadata
 

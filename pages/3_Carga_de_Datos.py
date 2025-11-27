@@ -1,5 +1,5 @@
 """
-File Analysis Page - Batch analysis of CSV files with network traffic data.
+Data Upload Page - Batch analysis of CSV files with network traffic data.
 """
 
 import streamlit as st
@@ -21,14 +21,14 @@ from utils.sidebar_component import render_sidebar
 # =============================================================================
 
 st.set_page_config(
-    page_title="Análisis de Archivo",
+    page_title="Carga de Datos",
     layout="wide"
 )
 
 # Render shared sidebar for consistency
 render_sidebar()
 
-st.title("Análisis de Archivo CSV")
+st.title("Carga de Datos")
 st.markdown("Carga un archivo CSV con datos de tráfico de red y obtén análisis detallado")
 
 # =============================================================================

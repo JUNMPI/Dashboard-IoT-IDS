@@ -27,7 +27,7 @@ def render_sidebar():
         st.markdown("---")
 
         # Model selection with improved UI
-        st.markdown("### Configuración del Modelo")
+        st.markdown("### Selección de Dataset")
 
         # Create visual cards for model selection
         st.markdown("""
@@ -65,11 +65,11 @@ def render_sidebar():
         """, unsafe_allow_html=True)
 
         model_type = st.radio(
-            "Seleccionar Modelo:",
+            "Seleccionar Dataset:",
             options=['synthetic', 'real'],
             format_func=lambda x: {
-                'synthetic': '🔬 Modelo Sintético',
-                'real': '🌐 Modelo Real (CICIoT2023)'
+                'synthetic': '🔬 Dataset Sintético',
+                'real': '🌐 Dataset Real (CICIoT2023)'
             }[x],
             key='model_selector',
             label_visibility="collapsed"
@@ -79,17 +79,17 @@ def render_sidebar():
         if model_type == 'synthetic':
             st.markdown("""
                 <div class='model-card selected'>
-                    <div class='model-name'>🔬 Modelo Sintético</div>
+                    <div class='model-name'>🔬 Dataset Sintético</div>
                     <div class='model-accuracy'>97.24%</div>
-                    <div class='model-type'>Alta precisión | Dataset balanceado</div>
+                    <div class='model-type'>Alta precisión | Datos balanceados</div>
                 </div>
             """, unsafe_allow_html=True)
         else:
             st.markdown("""
                 <div class='model-card selected'>
-                    <div class='model-name'>🌐 Modelo Real</div>
+                    <div class='model-name'>🌐 Dataset Real</div>
                     <div class='model-accuracy'>84.48%</div>
-                    <div class='model-type'>Dataset CICIoT2023 | Mayor robustez</div>
+                    <div class='model-type'>CICIoT2023 | Mayor robustez</div>
                 </div>
             """, unsafe_allow_html=True)
 
@@ -182,7 +182,7 @@ def render_sidebar():
         **Páginas disponibles:**
         - **Comparación**: Análisis comparativo
         - **Tiempo Real**: Simulación en vivo
-        - **Análisis**: Procesamiento de archivos
+        - **Carga de Datos**: Procesamiento de archivos
         - **Métricas**: Dashboard completo
         """)
 
